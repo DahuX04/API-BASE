@@ -1,0 +1,86 @@
+Table type_groups {
+  id int
+  extra json
+  is_active boolean
+  created_at timestamp [null]
+  updated_at timestamp [null]
+  code varchar
+  name varchar
+  is_editable boolean
+}
+
+Table types {
+  id int
+  extra json
+  is_active boolean
+  created_at timestamp [null]
+  updated_at timestamp [null]
+  type_group_id int
+  code varchar
+  name varchar
+  is_editable boolean
+}
+
+Table ubications {
+  id int
+  extra json
+  is_active boolean
+  created_at timestamp [null]
+  updated_at timestamp [null]
+  root_ubication_id int [null]
+  code varchar
+  name varchar
+}
+
+Table verification_notes {
+  id int
+  extra json
+  is_active boolean
+  created_at timestamp [null]
+  updated_at timestamp [null]
+  code varchar
+  name varchar
+  description varchar
+  grade decimal [null]
+  grade_type_id int
+  ubication_id int
+}
+
+Table parameters {
+  id int
+  extra json
+  is_active boolean
+  created_at timestamp [null]
+  updated_at timestamp [null]
+  code varchar
+  value text
+  description varchar [null]
+  is_json boolean [null]
+  is_encrypted boolean [null]
+}
+
+Table currencies {
+  id int
+  extra json
+  is_active boolean
+  created_at timestamp [null]
+  updated_at timestamp [null]
+  code varchar
+  name varchar
+  symbol varchar
+}
+
+Table users {
+  id int
+  extra json
+  is_active boolean
+  created_at timestamp [null]
+  updated_at timestamp [null]
+  email varchar
+  password varchar [null]
+  is_admin boolean [null]
+}
+
+Ref: types.type_group_id > type_groups.id
+Ref: ubications.root_ubication_id > ubications.id
+Ref: verification_notes.ubication_id > ubications.id
