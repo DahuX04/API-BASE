@@ -79,28 +79,28 @@ export const ENTITY_CONFIG: Record<
 
 	accreditor: {
 		entity: 'AccreditorEntity',
-		path: 'organization/accreditors',
+		path: 'accreditation/accreditors',
 		singular: 'accreditor',
 		plural: 'accreditors',
 	},
 
 	academic_period: {
 		entity: 'AcademicPeriodEntity',
-		path: 'organization/academic-periods',
+		path: 'academic/academic-periods',
 		singular: 'academic_period',
 		plural: 'academic_periods',
 	},
 
 	program: {
 		entity: 'ProgramEntity',
-		path: 'organization/programs',
+		path: 'academic/programs',
 		singular: 'program',
 		plural: 'programs',
 	},
 
 	course: {
 		entity: 'CourseEntity',
-		path: 'organization/courses',
+		path: 'academic/courses',
 		singular: 'course',
 		plural: 'courses',
 	},
@@ -110,5 +110,33 @@ export const ENTITY_CONFIG: Record<
 		path: 'organization/charts',
 		singular: 'chart',
 		plural: 'charts',
+	},
+
+	commision: {
+		entity: 'CommissionEntity',
+		path: 'accreditation/commissions',
+		singular: 'commission',
+		plural: 'commissions',
+	},
+
+	student: {
+		entity: 'StudentEntity',
+		path: 'academic/students',
+		singular: 'student',
+		plural: 'students',
+	},
+
+	study_plan: {
+		entity: 'StudyPlanEntity',
+		path: 'academic/study-plans',
+		singular: 'study_plan',
+		plural: 'study_plans',
+	},
+
+	professor: {
+		entity: 'ProfessorEntity',
+		path: 'academic/professors',
+		singular: 'professor',
+		plural: 'professors',
 	},
 };

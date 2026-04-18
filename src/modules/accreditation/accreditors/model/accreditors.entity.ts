@@ -2,7 +2,7 @@ import { Entity } from 'typeorm';
 import { BaseEntity } from 'src/commons/base.entity';
 import { NameColumn } from 'src/commons/configs/db.configs';
 
-@Entity({ name: 'accreditors', schema: 'organization' })
+@Entity({ name: 'accreditors', schema: 'accreditation' })
 export class AccreditorEntity extends BaseEntity {
 	// %% ATRIBUTOS
 

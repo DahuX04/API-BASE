@@ -2,7 +2,7 @@ import { Entity } from 'typeorm';
 import { BaseEntity } from 'src/commons/base.entity';
 import { NameColumn, CodeColumn, IntegerColumn } from 'src/commons/configs/db.configs';
 
-@Entity({ name: 'programs', schema: 'organization' })
+@Entity({ name: 'programs', schema: 'academic' })
 export class ProgramEntity extends BaseEntity {
 	// %% ATRIBUTOS
 
