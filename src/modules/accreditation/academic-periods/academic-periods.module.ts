@@ -13,5 +13,3 @@ import { AcademicPeriodController } from './api/academic-periods.controller';
 	exports: [AcademicPeriodService, AcademicPeriodRepository],
 })
 export class AcademicPeriodModule {}
-
-

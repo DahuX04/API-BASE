@@ -1,7 +1,7 @@
 import { Entity, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from 'src/commons/base.entity';
 import { TextMediumColumn, IntegerFKIDColumn, IntegerColumn } from 'src/commons/configs/db.configs';
-import { AcademicPeriodEntity } from 'src/modules/organization/academic-periods/model/academic-periods.entity';
+import { AcademicPeriodEntity } from 'src/modules/accreditation/academic-periods/model/academic-periods.entity';
 import { ChartLevelEntity } from 'src/modules/organization/chart-levels/model/chart-levels.entity';
 import { StaffEntity } from 'src/modules/organization/staff/model/staff.entity';
 
