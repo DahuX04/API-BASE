@@ -29,7 +29,8 @@ const files = globSync('src/modules/**/model/*.entity.ts');
 
 for (const file of files) {
 	try {
-		const parts = file.split('/');
+		const normalizedPath = file.replace(/\\/g, '/');
+		const parts = normalizedPath.split('/');
 
 		const domain = parts[2];
 		const moduleName = parts[3];

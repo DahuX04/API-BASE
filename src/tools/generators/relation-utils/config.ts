@@ -7,13 +7,6 @@ export const ENTITY_CONFIG: Record<
 		plural: string;
 	}
 > = {
-	user: {
-		entity: 'UserEntity',
-		path: 'auth/users',
-		singular: 'user',
-		plural: 'users',
-	},
-
 	currencies: {
 		entity: 'CurrencyEntity',
 		path: 'catalog/currencies',
@@ -54,5 +47,68 @@ export const ENTITY_CONFIG: Record<
 		path: 'grades/verification-notes',
 		singular: 'verification_note',
 		plural: 'verification_notes',
+	},
+
+	user: {
+		entity: 'UserEntity',
+		path: 'organization/users',
+		singular: 'user',
+		plural: 'users',
+	},
+
+	staff: {
+		entity: 'StaffEntity',
+		path: 'organization/staff',
+		singular: 'staff',
+		plural: 'staffs',
+	},
+
+	campuse: {
+		entity: 'CampusEntity',
+		path: 'organization/campuses',
+		singular: 'campus',
+		plural: 'campuses',
+	},
+
+	chart_level: {
+		entity: 'ChartLevelEntity',
+		path: 'organization/chart-levels',
+		singular: 'chart_level',
+		plural: 'chart_levels',
+	},
+
+	accreditor: {
+		entity: 'AccreditorEntity',
+		path: 'organization/accreditors',
+		singular: 'accreditor',
+		plural: 'accreditors',
+	},
+
+	academic_period: {
+		entity: 'AcademicPeriodEntity',
+		path: 'organization/academic-periods',
+		singular: 'academic_period',
+		plural: 'academic_periods',
+	},
+
+	program: {
+		entity: 'ProgramEntity',
+		path: 'organization/programs',
+		singular: 'program',
+		plural: 'programs',
+	},
+
+	course: {
+		entity: 'CourseEntity',
+		path: 'organization/courses',
+		singular: 'course',
+		plural: 'courses',
+	},
+
+	chart: {
+		entity: 'ChartEntity',
+		path: 'organization/charts',
+		singular: 'chart',
+		plural: 'charts',
 	},
 };
