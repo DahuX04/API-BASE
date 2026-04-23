@@ -63,7 +63,7 @@ export const ENTITY_CONFIG: Record<
 		plural: 'staffs',
 	},
 
-	campuse: {
+	campus: {
 		entity: 'CampusEntity',
 		path: 'organization/campuses',
 		singular: 'campus',
@@ -112,7 +112,7 @@ export const ENTITY_CONFIG: Record<
 		plural: 'charts',
 	},
 
-	commision: {
+	commission: {
 		entity: 'CommissionEntity',
 		path: 'accreditation/commissions',
 		singular: 'commission',
@@ -139,4 +139,61 @@ export const ENTITY_CONFIG: Record<
 		singular: 'professor',
 		plural: 'professors',
 	},
+
+	program_commission: {
+		entity: 'ProgramCommissionEntity',
+		path: 'accreditation/program-commissions',
+		singular: 'program_commission',
+		plural: 'program_commissions',
+	},
+
+	study_plan_academic_period: {
+		entity: 'StudyPlanAcademicPeriodEntity',
+		path: 'academic/study-plan-academic-periods',
+		singular: 'study_plan_academic_period',
+		plural: 'study_plan_academic_periods',
+	},
+
+	outcome: {
+		entity: 'OutcomeEntity',
+		path: 'accreditation/outcomes',
+		singular: 'outcome',
+		plural: 'outcomes',
+	},
+
+	enrolled_students: {
+		entity: 'EnrolledStudentEntity',
+		path: 'academic/enrolled-students',
+		singular: 'enrolled_student',
+		plural: 'enrolled_students',
+	},
+
+	study_plan_course: {
+		entity: 'StudyPlanCourseEntity',
+		path: 'academic/study-plan-courses',
+		singular: 'study_plan_course',
+		plural: 'study_plan_courses',
+	},
+
+	course_section: {
+		entity: 'CourseSectionEntity',
+		path: 'academic/course-sections',
+		singular: 'course_section',
+		plural: 'course_sections',
+	},
+
+	course_outcome_mapping: {
+		entity: 'CourseOutcomeMappingEntity',
+		path: 'academic/course-outcome-mappings',
+		singular: 'course_outcome_mapping',
+		plural: 'course_outcome_mappings',
+	},
+
+	student_section_enrollments: {
+		entity: 'StudentSectionEnrollmentEntity',
+		path: 'academic/student-section-enrollments',
+		singular: 'student_section_enrollment',
+		plural: 'student_section_enrollements',
+	},
+
 };
