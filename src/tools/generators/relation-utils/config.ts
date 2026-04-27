@@ -7,41 +7,6 @@ export const ENTITY_CONFIG: Record<
 		plural: string;
 	}
 > = {
-	currencies: {
-		entity: 'CurrencyEntity',
-		path: 'catalog/currencies',
-		singular: 'currency',
-		plural: 'currencies',
-	},
-
-	parameters: {
-		entity: 'ParameterEntity',
-		path: 'catalog/parameters',
-		singular: 'parameter',
-		plural: 'parameters',
-	},
-
-	type: {
-		entity: 'TypeEntity',
-		path: 'catalog/types',
-		singular: 'type',
-		plural: 'types',
-	},
-
-	type_group: {
-		entity: 'TypeGroupEntity',
-		path: 'catalog/type-groups',
-		singular: 'type_group',
-		plural: 'type_groups',
-	},
-
-	ubication: {
-		entity: 'UbicationEntity',
-		path: 'catalog/ubications',
-		singular: 'ubication',
-		plural: 'ubications',
-	},
-
 	verification_note: {
 		entity: 'VerificationNoteEntity',
 		path: 'grades/verification-notes',
@@ -196,4 +161,94 @@ export const ENTITY_CONFIG: Record<
 		plural: 'student_section_enrollements',
 	},
 
+	performance_level: {
+		entity: 'PerformanceLevelEntity',
+		path: 'rubrics/performance-levels',
+		singular: 'performance_level',
+		plural: 'performance_levels',
+	},
+
+	type_group: {
+		entity: 'TypeGroupEntity',
+		path: 'core/type-groups',
+		singular: 'type_group',
+		plural: 'type_groups',
+	},
+
+	type: {
+		entity: 'TypeEntity',
+		path: 'core/types',
+		singular: 'type',
+		plural: 'types',
+	},
+
+	assessment: {
+		entity: 'AssessmentEntity',
+		path: 'rubrics/assessments',
+		singular: 'assessment',
+		plural: 'assessments',
+	},
+
+	rubrics: {
+		entity: 'RubricEntity',
+		path: 'rubrics/rubrics',
+		singular: 'rubric',
+		plural: 'rubrics',
+	},
+
+	rubric_performance_level: {
+		entity: 'RubricPerformanceLevelEntity',
+		path: 'rubrics/rubric-performance-levels',
+		singular: 'rubric_performance_level',
+		plural: 'rubric_performance_levels',
+	},
+
+	graded_outcome: {
+		entity: 'GradedOutcomeEntity',
+		path: 'rubrics/graded-outcomes',
+		singular: 'graded_outcome',
+		plural: 'graded_outcomes',
+	},
+
+	outcome_rubric: {
+		entity: 'OutcomeRubricEntity',
+		path: 'rubrics/outcome-rubrics',
+		singular: 'outcome_rubric',
+		plural: 'outcome_rubrics',
+	},
+
+	outcome_criteria: {
+		entity: 'OutcomeCriteriaEntity',
+		path: 'rubrics/outcome-criterias',
+		singular: 'outcome_criteria',
+		plural: 'outcome_criterias',
+	},
+
+	criteria_performance_level: {
+		entity: 'CriteriaPerformanceLevelEntity',
+		path: 'rubrics/criteria-performance-levels',
+		singular: 'criteria_performance_level',
+		plural: 'criteria_performance_levels',
+	},
+
+	graded_criteria: {
+		entity: 'GradedCriteriaEntity',
+		path: 'rubrics/graded-criteria',
+		singular: 'graded_criteria',
+		plural: 'graded_criteria',
+	},
+
+	faculty: {
+		entity: 'FacultyEntity',
+		path: 'organization/faculties',
+		singular: 'faculty',
+		plural: 'faculties',
+	},
+
+	school: {
+		entity: 'SchoolEntity',
+		path: 'organization/schools',
+		singular: 'school',
+		plural: 'schools',
+	},
 };
