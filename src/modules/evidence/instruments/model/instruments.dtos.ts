@@ -21,6 +21,12 @@ export class CreateInstrumentDto extends BaseDto {
 	@ApiProperty({ example: 'name_example', required: true })
 	name: string;
 
+	@IsOptional()
+	@IsString()
+	@Length(1, 1000)
+	@ApiProperty({ example: 'description_example', required: false })
+	description?: string;
+
 	@IsBoolean()
 	@ApiProperty({ example: true, required: true })
 	is_for_accreditation: boolean;
@@ -48,6 +54,12 @@ export class UpdateInstrumentDto extends BaseDto {
 	name?: string;
 
 	@IsOptional()
+	@IsString()
+	@Length(1, 1000)
+	@ApiProperty({ example: 'description_example', required: false })
+	description?: string;
+
+	@IsOptional()
 	@IsBoolean()
 	@ApiProperty({ example: true, required: false })
 	is_for_accreditation?: boolean;
@@ -69,6 +81,10 @@ export class FilterInstrumentDto extends BaseDto {
 	@IsOptional()
 	@ApiProperty({ example: 'name_example', required: false })
 	name?: string;
+
+	@IsOptional()
+	@ApiProperty({ example: 'description_example', required: false })
+	description?: string;
 
 	@IsOptional()
 	@ApiProperty({ example: true, required: false })

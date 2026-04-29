@@ -1,6 +1,6 @@
 import { Entity, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from 'src/commons/base.entity';
-import { IntegerFKIDColumn } from 'src/commons/configs/db.configs';
+import { IntegerFKIDColumn, IntegerColumn } from 'src/commons/configs/db.configs';
 import { AcademicPeriodEntity } from 'src/modules/academic/academic-periods/model/academic-periods.entity';
 import { CommissionEntity } from 'src/modules/accreditation/commissions/model/commissions.entity';
 import { ProgramEntity } from 'src/modules/academic/programs/model/programs.entity';
@@ -17,6 +17,9 @@ export class ProgramCommissionEntity extends BaseEntity {
 
 	@IntegerFKIDColumn({ nullable: false })
 	academic_period_id: number;
+
+	@IntegerColumn({ nullable: false })
+	commission_type_id: number;
 
 	// %% RELACIONES
 

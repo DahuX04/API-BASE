@@ -10,7 +10,7 @@ export class ProjectEntity extends BaseEntity {
 	code: string;
 
 	@NameColumn({ nullable: false })
-	code_name: string;
+	name: string;
 
 	@TextMediumColumn({ nullable: true })
 	description: string;

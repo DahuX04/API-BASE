@@ -163,7 +163,7 @@ export const ENTITY_CONFIG: Record<
 
 	performance_level: {
 		entity: 'PerformanceLevelEntity',
-		path: 'rubrics/performance-levels',
+		path: 'academic/performance-levels',
 		singular: 'performance_level',
 		plural: 'performance_levels',
 	},
@@ -406,10 +406,38 @@ export const ENTITY_CONFIG: Record<
 		plural: 'rubric_scores',
 	},
 
-	parameters: {
+	parameter: {
 		entity: 'ParameterEntity',
 		path: 'core/parameters',
 		singular: 'parameter',
 		plural: 'parameters',
+	},
+
+	score: {
+		entity: 'ScoreEntity',
+		path: 'survey/scores',
+		singular: 'score',
+		plural: 'scores',
+	},
+
+	outcome_config: {
+		entity: 'OutcomeConfigEntity',
+		path: 'survey/outcome-configs',
+		singular: 'outcome_config',
+		plural: 'outcome_configs',
+	},
+
+	notification: {
+		entity: 'NotificationEntity',
+		path: 'survey/notifications',
+		singular: 'notification',
+		plural: 'notifications',
+	},
+
+	notification_message: {
+		entity: 'NotificationMessageEntity',
+		path: 'survey/notification-messages',
+		singular: 'notification_message',
+		plural: 'notification_messages',
 	},
 };

@@ -32,12 +32,6 @@ export class CreateRubricQuestionCriteriaDto extends BaseDto {
 	@IsNumber()
 	@ApiProperty({ example: 1, required: true })
 	max_value: number;
-
-	@IsOptional()
-	@IsString()
-	@Length(1, 1000)
-	@ApiProperty({ example: 'description_example', required: false })
-	description?: string;
 }
 
 export class UpdateRubricQuestionCriteriaDto extends BaseDto {
@@ -75,12 +69,6 @@ export class UpdateRubricQuestionCriteriaDto extends BaseDto {
 	@IsNumber()
 	@ApiProperty({ example: 1, required: false })
 	max_value?: number;
-
-	@IsOptional()
-	@IsString()
-	@Length(1, 1000)
-	@ApiProperty({ example: 'description_example', required: false })
-	description?: string;
 }
 
 export class FilterRubricQuestionCriteriaDto extends BaseDto {
@@ -111,8 +99,4 @@ export class FilterRubricQuestionCriteriaDto extends BaseDto {
 	@IsOptional()
 	@ApiProperty({ example: 1, required: false })
 	max_value?: number;
-
-	@IsOptional()
-	@ApiProperty({ example: 'description_example', required: false })
-	description?: string;
 }

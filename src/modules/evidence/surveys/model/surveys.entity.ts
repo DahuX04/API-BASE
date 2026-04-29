@@ -1,6 +1,6 @@
 import { Entity, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from 'src/commons/base.entity';
-import { TextMediumColumn, IntegerFKIDColumn, IntegerColumn, BooleanColumn } from 'src/commons/configs/db.configs';
+import { TextMediumColumn, IntegerFKIDColumn, IntegerColumn } from 'src/commons/configs/db.configs';
 import { AcademicPeriodEntity } from 'src/modules/academic/academic-periods/model/academic-periods.entity';
 import { CampusEntity } from 'src/modules/organization/campuses/model/campuses.entity';
 import { ProgramEntity } from 'src/modules/academic/programs/model/programs.entity';
@@ -33,9 +33,6 @@ export class SurveyEntity extends BaseEntity {
 
 	@IntegerColumn({ nullable: true })
 	survey_number: number;
-
-	@BooleanColumn({ nullable: false, default: true })
-	is_for_accreditation: boolean;
 
 	// %% RELACIONES
 

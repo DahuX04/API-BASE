@@ -24,6 +24,6 @@ create_entity() {
 		"src/modules/$ENTITY_PATH/model/${ENTITY}.entity.ts" \
 		"src/modules/$ENTITY_PATH/${ENTITY}.module.ts"
 }
-create_entity core parameters
+create_entity survey notification-messages
 
 echo "✅ Estructura creada correctamente"

@@ -1,6 +1,6 @@
 import { Entity } from 'typeorm';
 import { BaseEntity } from 'src/commons/base.entity';
-import { NameColumn, TextMediumColumn } from 'src/commons/configs/db.configs';
+import { NameColumn, TextMediumColumn, TextFullColumn } from 'src/commons/configs/db.configs';
 
 @Entity({ name: 'courses', schema: 'academic' })
 export class CourseEntity extends BaseEntity {
@@ -12,7 +12,7 @@ export class CourseEntity extends BaseEntity {
 	@TextMediumColumn({ nullable: false })
 	description: string;
 
-	@TextMediumColumn({ nullable: false })
+	@TextFullColumn({ nullable: false })
 	learning_outcome: string;
 
 	// %% RELACIONES

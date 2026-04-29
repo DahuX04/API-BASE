@@ -23,7 +23,6 @@ export class CreateCourseDto extends BaseDto {
 	description: string;
 
 	@IsString()
-	@Length(1, 1000)
 	@ApiProperty({ example: 'learning_outcome_example', required: true })
 	learning_outcome: string;
 }
@@ -52,7 +51,6 @@ export class UpdateCourseDto extends BaseDto {
 
 	@IsOptional()
 	@IsString()
-	@Length(1, 1000)
 	@ApiProperty({ example: 'learning_outcome_example', required: false })
 	learning_outcome?: string;
 }

@@ -1,6 +1,6 @@
 import { Entity } from 'typeorm';
 import { BaseEntity } from 'src/commons/base.entity';
-import { TextMediumColumn, TextLargeColumn, IntegerColumn, DecimalColumn } from 'src/commons/configs/db.configs';
+import { TextLargeColumn, IntegerColumn, DecimalColumn } from 'src/commons/configs/db.configs';
 
 @Entity({ name: 'rubric_question_criterias', schema: 'evaluation' })
 export class RubricQuestionCriteriaEntity extends BaseEntity {
@@ -20,9 +20,6 @@ export class RubricQuestionCriteriaEntity extends BaseEntity {
 
 	@DecimalColumn({ nullable: false })
 	max_value: number;
-
-	@TextMediumColumn({ nullable: true })
-	description: string;
 
 	// %% RELACIONES
 }

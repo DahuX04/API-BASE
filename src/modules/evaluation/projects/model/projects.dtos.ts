@@ -14,8 +14,8 @@ export class CreateProjectDto extends BaseDto {
 
 	@IsString()
 	@Length(1, 1000)
-	@ApiProperty({ example: 'code_name_example', required: true })
-	code_name: string;
+	@ApiProperty({ example: 'name_example', required: true })
+	name: string;
 
 	@IsOptional()
 	@IsString()
@@ -37,8 +37,8 @@ export class UpdateProjectDto extends BaseDto {
 	@IsOptional()
 	@IsString()
 	@Length(1, 1000)
-	@ApiProperty({ example: 'code_name_example', required: false })
-	code_name?: string;
+	@ApiProperty({ example: 'name_example', required: false })
+	name?: string;
 
 	@IsOptional()
 	@IsString()
@@ -57,8 +57,8 @@ export class FilterProjectDto extends BaseDto {
 	is_active?: boolean;
 
 	@IsOptional()
-	@ApiProperty({ example: 'code_name_example', required: false })
-	code_name?: string;
+	@ApiProperty({ example: 'name_example', required: false })
+	name?: string;
 
 	@IsOptional()
 	@ApiProperty({ example: 'description_example', required: false })

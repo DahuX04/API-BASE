@@ -10,8 +10,8 @@ export class StudyPlanEntity extends BaseEntity {
 	@IntegerFKIDColumn({ nullable: false })
 	program_id: number;
 
-	@CodeColumn({ nullable: false })
-	code: number;
+	@CodeColumn({ nullable: false, length: 10 })
+	code: string;
 
 	@NameColumn({ nullable: false })
 	name: string;

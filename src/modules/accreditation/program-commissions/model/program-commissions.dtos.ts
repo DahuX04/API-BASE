@@ -23,6 +23,10 @@ export class CreateProgramCommissionDto extends BaseDto {
 	@IsNumber()
 	@ApiProperty({ example: 1, required: true })
 	academic_period_id: number;
+
+	@IsNumber()
+	@ApiProperty({ example: 1, required: true })
+	commission_type_id: number;
 }
 
 export class UpdateProgramCommissionDto extends BaseDto {
@@ -49,6 +53,11 @@ export class UpdateProgramCommissionDto extends BaseDto {
 	@IsNumber()
 	@ApiProperty({ example: 1, required: false })
 	academic_period_id?: number;
+
+	@IsOptional()
+	@IsNumber()
+	@ApiProperty({ example: 1, required: false })
+	commission_type_id?: number;
 }
 
 export class FilterProgramCommissionDto extends BaseDto {
@@ -71,4 +80,8 @@ export class FilterProgramCommissionDto extends BaseDto {
 	@IsOptional()
 	@ApiProperty({ example: 1, required: false })
 	academic_period_id?: number;
+
+	@IsOptional()
+	@ApiProperty({ example: 1, required: false })
+	commission_type_id?: number;
 }
