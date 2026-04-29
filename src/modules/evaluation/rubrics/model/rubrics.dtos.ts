@@ -1,4 +1,4 @@
-import { IsBoolean, IsNumber, IsOptional, IsString, Length } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseDto } from 'src/commons/base.dtos';
 
@@ -14,25 +14,15 @@ export class CreateRubricDto extends BaseDto {
 
 	@IsNumber()
 	@ApiProperty({ example: 1, required: true })
-	assessment_id: number;
-
-	@IsOptional()
-	@IsString()
-	@Length(1, 1000)
-	@ApiProperty({ example: 'description_example', required: false })
-	description?: string;
-
-	@IsBoolean()
-	@ApiProperty({ example: true, required: true })
-	is_graded_score: boolean;
-
-	@IsBoolean()
-	@ApiProperty({ example: true, required: true })
-	is_editable: boolean;
+	rubric_type_id: number;
 
 	@IsNumber()
 	@ApiProperty({ example: 1, required: true })
-	max_score: number;
+	segment_type_id: number;
+
+	@IsNumber()
+	@ApiProperty({ example: 1, required: true })
+	study_plan_course_id: number;
 }
 
 export class UpdateRubricDto extends BaseDto {
@@ -48,28 +38,17 @@ export class UpdateRubricDto extends BaseDto {
 	@IsOptional()
 	@IsNumber()
 	@ApiProperty({ example: 1, required: false })
-	assessment_id?: number;
-
-	@IsOptional()
-	@IsString()
-	@Length(1, 1000)
-	@ApiProperty({ example: 'description_example', required: false })
-	description?: string;
-
-	@IsOptional()
-	@IsBoolean()
-	@ApiProperty({ example: true, required: false })
-	is_graded_score?: boolean;
-
-	@IsOptional()
-	@IsBoolean()
-	@ApiProperty({ example: true, required: false })
-	is_editable?: boolean;
+	rubric_type_id?: number;
 
 	@IsOptional()
 	@IsNumber()
 	@ApiProperty({ example: 1, required: false })
-	max_score?: number;
+	segment_type_id?: number;
+
+	@IsOptional()
+	@IsNumber()
+	@ApiProperty({ example: 1, required: false })
+	study_plan_course_id?: number;
 }
 
 export class FilterRubricDto extends BaseDto {
@@ -83,21 +62,13 @@ export class FilterRubricDto extends BaseDto {
 
 	@IsOptional()
 	@ApiProperty({ example: 1, required: false })
-	assessment_id?: number;
-
-	@IsOptional()
-	@ApiProperty({ example: 'description_example', required: false })
-	description?: string;
-
-	@IsOptional()
-	@ApiProperty({ example: true, required: false })
-	is_graded_score?: boolean;
-
-	@IsOptional()
-	@ApiProperty({ example: true, required: false })
-	is_editable?: boolean;
+	rubric_type_id?: number;
 
 	@IsOptional()
 	@ApiProperty({ example: 1, required: false })
-	max_score?: number;
+	segment_type_id?: number;
+
+	@IsOptional()
+	@ApiProperty({ example: 1, required: false })
+	study_plan_course_id?: number;
 }
