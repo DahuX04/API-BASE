@@ -126,7 +126,7 @@ export const ENTITY_CONFIG: Record<
 		plural: 'outcomes',
 	},
 
-	enrolled_students: {
+	enrolled_student: {
 		entity: 'EnrolledStudentEntity',
 		path: 'academic/enrolled-students',
 		singular: 'enrolled_student',
@@ -154,7 +154,7 @@ export const ENTITY_CONFIG: Record<
 		plural: 'course_outcome_mappings',
 	},
 
-	student_section_enrollments: {
+	student_section_enrollment: {
 		entity: 'StudentSectionEnrollmentEntity',
 		path: 'academic/student-section-enrollments',
 		singular: 'student_section_enrollment',
@@ -189,9 +189,9 @@ export const ENTITY_CONFIG: Record<
 		plural: 'assessments',
 	},
 
-	rubrics: {
+	rubric: {
 		entity: 'RubricEntity',
-		path: 'rubrics/rubrics',
+		path: 'evaluation/rubrics',
 		singular: 'rubric',
 		plural: 'rubrics',
 	},
@@ -250,5 +250,166 @@ export const ENTITY_CONFIG: Record<
 		path: 'organization/schools',
 		singular: 'school',
 		plural: 'schools',
+	},
+
+	project: {
+		entity: 'ProjectEntity',
+		path: 'evaluation/projects',
+		singular: 'project',
+		plural: 'projects',
+	},
+
+	rubric_question_criteria: {
+		entity: 'RubricQuestionCriteriaEntity',
+		path: 'evaluation/rubric-question-criterias',
+		singular: 'rubric_question_criteria',
+		plural: 'rubric_question_criterias',
+	},
+
+	instrument: {
+		entity: 'InstrumentEntity',
+		path: 'evidence/instruments',
+		singular: 'instrument',
+		plural: 'instruments',
+	},
+
+	action: {
+		entity: 'ActionEntity',
+		path: 'improvement/actions',
+		singular: 'action',
+		plural: 'actions',
+	},
+
+	plan: {
+		entity: 'PlanEntity',
+		path: 'improvement/plans',
+		singular: 'plan',
+		plural: 'plans',
+	},
+
+	project_evaluator: {
+		entity: 'ProjectEvaluatorEntity',
+		path: 'evaluation/project-evaluators',
+		singular: 'project_evaluator',
+		plural: 'project_evaluators',
+	},
+
+	ifc: {
+		entity: 'IfcEntity',
+		path: 'evidence/ifcs',
+		singular: 'ifc',
+		plural: 'ifcs',
+	},
+
+	survey: {
+		entity: 'SurveyEntity',
+		path: 'evidence/surveys',
+		singular: 'survey',
+		plural: 'surveys',
+	},
+
+	finding: {
+		entity: 'FindingEntity',
+		path: 'improvement/findings',
+		singular: 'finding',
+		plural: 'findings',
+	},
+
+	rubric_scale: {
+		entity: 'RubricScaleEntity',
+		path: 'evaluation/rubric-scales',
+		singular: 'rubric_scale',
+		plural: 'rubric_scales',
+	},
+
+	rubric_outcome_criteria: {
+		entity: 'RubricOutcomeCriteriaEntity',
+		path: 'evaluation/rubric-outcome-criterias',
+		singular: 'rubric_outcome_criteria',
+		plural: 'rubric_outcome_criterias',
+	},
+
+	rubric_question: {
+		entity: 'RubricQuestionEntity',
+		path: 'evaluation/rubric-questions',
+		singular: 'rubric_question',
+		plural: 'rubric_questions',
+	},
+
+	ifc_finding: {
+		entity: 'IfcFindingEntity',
+		path: 'ifc/ifc-findings',
+		singular: 'ifc_finding',
+		plural: 'ifc_findings',
+	},
+
+	status: {
+		entity: 'StatusEntity',
+		path: 'ifc/statuses',
+		singular: 'status',
+		plural: 'statuses',
+	},
+
+	finding_action: {
+		entity: 'FindingActionEntity',
+		path: 'improvement/finding-actions',
+		singular: 'finding_action',
+		plural: 'finding_actions',
+	},
+
+	finding_outcome: {
+		entity: 'FindingOutcomeEntity',
+		path: 'improvement/finding-outcomes',
+		singular: 'finding_outcome',
+		plural: 'finding_outcomes',
+	},
+
+	student_course_grade: {
+		entity: 'StudentCourseGradeEntity',
+		path: 'academic/student-course-grades',
+		singular: 'student-course-grade',
+		plural: 'student-course-grades',
+	},
+
+	project_student: {
+		entity: 'ProjectStudentEntity',
+		path: 'evaluation/project-students',
+		singular: 'project_student',
+		plural: 'project_students',
+	},
+
+	student_course_outcome_grade: {
+		entity: 'StudentCourseOutcomeGradeEntity',
+		path: 'evidence/student-course-outcome-grades',
+		singular: 'student-course-outcome-grade',
+		plural: 'student-course-outcome-grades',
+	},
+
+	plan_action: {
+		entity: 'PlanActionEntity',
+		path: 'improvement/plan-actions',
+		singular: 'plan_action',
+		plural: 'plan_actions',
+	},
+
+	evaluation: {
+		entity: 'EvaluationEntity',
+		path: 'evidence/evaluations',
+		singular: 'evaluation',
+		plural: 'evaluations',
+	},
+
+	rubric_score: {
+		entity: 'RubricScoreEntity',
+		path: 'evaluation/rubric-scores',
+		singular: 'rubric_score',
+		plural: 'rubric_scores',
+	},
+
+	parameters: {
+		entity: 'ParameterEntity',
+		path: 'core/parameters',
+		singular: 'parameter',
+		plural: 'parameters',
 	},
 };

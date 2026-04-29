@@ -18,6 +18,10 @@ export class CreateCourseSectionDto extends BaseDto {
 
 	@IsNumber()
 	@ApiProperty({ example: 1, required: true })
+	campus_id: number;
+
+	@IsNumber()
+	@ApiProperty({ example: 1, required: true })
 	professor_id: number;
 
 	@IsOptional()
@@ -47,6 +51,11 @@ export class UpdateCourseSectionDto extends BaseDto {
 	@IsOptional()
 	@IsNumber()
 	@ApiProperty({ example: 1, required: false })
+	campus_id?: number;
+
+	@IsOptional()
+	@IsNumber()
+	@ApiProperty({ example: 1, required: false })
 	professor_id?: number;
 
 	@IsOptional()
@@ -71,6 +80,10 @@ export class FilterCourseSectionDto extends BaseDto {
 	@IsOptional()
 	@ApiProperty({ example: 1, required: false })
 	study_plan_course_id?: number;
+
+	@IsOptional()
+	@ApiProperty({ example: 1, required: false })
+	campus_id?: number;
 
 	@IsOptional()
 	@ApiProperty({ example: 1, required: false })

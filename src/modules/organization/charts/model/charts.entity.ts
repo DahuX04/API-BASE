@@ -1,6 +1,6 @@
 import { Entity, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from 'src/commons/base.entity';
-import { TextMediumColumn, IntegerFKIDColumn, IntegerColumn } from 'src/commons/configs/db.configs';
+import { CodeColumn, TextMediumColumn, IntegerFKIDColumn, IntegerColumn } from 'src/commons/configs/db.configs';
 import { AcademicPeriodEntity } from 'src/modules/academic/academic-periods/model/academic-periods.entity';
 import { ChartLevelEntity } from 'src/modules/organization/chart-levels/model/chart-levels.entity';
 import { StaffEntity } from 'src/modules/organization/staff/model/staff.entity';
@@ -23,6 +23,12 @@ export class ChartEntity extends BaseEntity {
 
 	@TextMediumColumn({ nullable: false })
 	level_title: string;
+
+	@IntegerColumn({ nullable: false })
+	entity_type_id: number;
+
+	@CodeColumn({ nullable: false })
+	entity_code: string;
 
 	// %% RELACIONES
 

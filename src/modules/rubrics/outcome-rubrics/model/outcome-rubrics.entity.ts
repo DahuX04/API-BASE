@@ -2,6 +2,7 @@ import { Entity, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from 'src/commons/base.entity';
 import { IntegerFKIDColumn, IntegerColumn, DecimalColumn, BooleanColumn } from 'src/commons/configs/db.configs';
 import { OutcomeEntity } from 'src/modules/accreditation/outcomes/model/outcomes.entity';
+import { RubricEntity } from 'src/modules/evaluation/rubrics/model/rubrics.entity';
 
 @Entity({ name: 'outcome_rubrics', schema: 'rubrics' })
 export class OutcomeRubricEntity extends BaseEntity {
@@ -23,6 +24,10 @@ export class OutcomeRubricEntity extends BaseEntity {
 	is_visible: boolean;
 
 	// %% RELACIONES
+
+	@ManyToOne(() => RubricEntity)
+	@JoinColumn({ name: 'rubric_id' })
+	rubric: RubricEntity;
 
 	@ManyToOne(() => OutcomeEntity)
 	@JoinColumn({ name: 'outcome_id' })

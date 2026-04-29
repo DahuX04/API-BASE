@@ -29,10 +29,6 @@ export class CreateVerificationNoteDto extends BaseDto {
 	@IsNumber()
 	@ApiProperty({ example: 1, required: true })
 	grade_type_id: number;
-
-	@IsNumber()
-	@ApiProperty({ example: 1, required: true })
-	ubication_id: number;
 }
 
 export class UpdateVerificationNoteDto extends BaseDto {
@@ -66,11 +62,6 @@ export class UpdateVerificationNoteDto extends BaseDto {
 	@IsNumber()
 	@ApiProperty({ example: 1, required: false })
 	grade_type_id?: number;
-
-	@IsOptional()
-	@IsNumber()
-	@ApiProperty({ example: 1, required: false })
-	ubication_id?: number;
 }
 
 export class FilterVerificationNoteDto extends BaseDto {
@@ -97,8 +88,4 @@ export class FilterVerificationNoteDto extends BaseDto {
 	@IsOptional()
 	@ApiProperty({ example: 1, required: false })
 	grade_type_id?: number;
-
-	@IsOptional()
-	@ApiProperty({ example: 1, required: false })
-	ubication_id?: number;
 }

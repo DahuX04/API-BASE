@@ -21,7 +21,7 @@ export class VerificationNoteEntity extends BaseEntity {
 	// @relation: one-to-one
 	@IntegerFKIDColumn({ nullable: false })
 	grade_type_id: number;
-	
+
 	// %% RELACIONES
 
 	@OneToOne(() => TypeEntity, (x) => x.verification_note)

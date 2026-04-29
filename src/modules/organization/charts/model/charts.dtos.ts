@@ -32,6 +32,10 @@ export class CreateChartDto extends BaseDto {
 	@Length(1, 1000)
 	@ApiProperty({ example: 'level_title_example', required: true })
 	level_title: string;
+
+	@IsNumber()
+	@ApiProperty({ example: 1, required: true })
+	entity_type_id: number;
 }
 
 export class UpdateChartDto extends BaseDto {
@@ -69,6 +73,11 @@ export class UpdateChartDto extends BaseDto {
 	@Length(1, 1000)
 	@ApiProperty({ example: 'level_title_example', required: false })
 	level_title?: string;
+
+	@IsOptional()
+	@IsNumber()
+	@ApiProperty({ example: 1, required: false })
+	entity_type_id?: number;
 }
 
 export class FilterChartDto extends BaseDto {
@@ -99,4 +108,8 @@ export class FilterChartDto extends BaseDto {
 	@IsOptional()
 	@ApiProperty({ example: 'level_title_example', required: false })
 	level_title?: string;
+
+	@IsOptional()
+	@ApiProperty({ example: 1, required: false })
+	entity_type_id?: number;
 }

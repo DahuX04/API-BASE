@@ -24,6 +24,6 @@ create_entity() {
 		"src/modules/$ENTITY_PATH/model/${ENTITY}.entity.ts" \
 		"src/modules/$ENTITY_PATH/${ENTITY}.module.ts"
 }
-create_entity organization schools
+create_entity core parameters
 
 echo "✅ Estructura creada correctamente"
