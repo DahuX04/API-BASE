@@ -1,8 +1,8 @@
 import { ControllerWithTags, HttpMethodWithSwagger } from 'src/commons/base.decorator';
 import { usersRoutes } from '../../config/users.routes';
-import { CreateUserDto, UpdateUserDto, FilterUserDto } from '../../model/users.dtos';
+import { CreateUserDto, UpdateUserDto, FilterUserDto, LoginUserByCredentialsDto, ChangeRoleDto } from '../../model/users.dtos';
 
-const cfg = usersRoutes.users;
+const cfg = usersRoutes;
 
 export const SwaggerUserController = () => ControllerWithTags({ tag: cfg.tag, route: cfg.route });
 
@@ -17,3 +17,9 @@ export const SwaggerUserGetAll = () => HttpMethodWithSwagger(cfg.operation.getAl
 export const SwaggerUserGetById = () => HttpMethodWithSwagger(cfg.operation.getById);
 
 export const SwaggerUserGetByFilters = () => HttpMethodWithSwagger({ ...cfg.operation.getByFilters, body: FilterUserDto });
+
+export const SwaggerUserLoginByCredentials = () => HttpMethodWithSwagger({ ...cfg.operation.loginByCredentials, body: LoginUserByCredentialsDto });
+
+export const SwaggerUserLogout = () => HttpMethodWithSwagger({ ...cfg.operation.logout });
+
+export const SwaggerUserChangeRole = () => HttpMethodWithSwagger({ ...cfg.operation.changeRole, body: ChangeRoleDto });

@@ -1,6 +1,6 @@
 import { Entity } from 'typeorm';
 import { BaseEntity } from 'src/commons/base.entity';
-import { NameColumn, CodeColumn, TextMediumColumn, IntegerColumn } from 'src/commons/configs/db.configs';
+import { NameColumn, CodeColumn, PasswordColumn, TextMediumColumn, IntegerColumn, BooleanColumn } from 'src/commons/configs/db.configs';
 
 @Entity({ name: 'users', schema: 'organization' })
 export class UserEntity extends BaseEntity {
@@ -23,6 +23,12 @@ export class UserEntity extends BaseEntity {
 
 	@NameColumn()
 	phone: string;
+
+	@PasswordColumn({ nullable: false })
+	password: string;
+
+	@BooleanColumn()
+	is_admin: boolean;
 
 	// %% RELACIONES
 }

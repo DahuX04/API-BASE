@@ -1,4 +1,4 @@
-import { IsBoolean, IsNumber, IsOptional, IsString, Length } from 'class-validator';
+import { IsBoolean, IsEmail, IsNumber, IsOptional, IsString, Length } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseDto } from 'src/commons/base.dtos';
 
@@ -40,6 +40,10 @@ export class CreateUserDto extends BaseDto {
 	@Length(1, 1000)
 	@ApiProperty({ example: 'phone_example', required: true })
 	phone: string;
+
+	@IsBoolean()
+	@ApiProperty({ example: true, required: true })
+	is_admin: boolean;
 }
 
 export class UpdateUserDto extends BaseDto {
@@ -86,6 +90,11 @@ export class UpdateUserDto extends BaseDto {
 	@Length(1, 1000)
 	@ApiProperty({ example: 'phone_example', required: false })
 	phone?: string;
+
+	@IsOptional()
+	@IsBoolean()
+	@ApiProperty({ example: true, required: false })
+	is_admin?: boolean;
 }
 
 export class FilterUserDto extends BaseDto {
@@ -120,4 +129,39 @@ export class FilterUserDto extends BaseDto {
 	@IsOptional()
 	@ApiProperty({ example: 'phone_example', required: false })
 	phone?: string;
+
+	@IsOptional()
+	@ApiProperty({ example: true, required: false })
+	is_admin?: boolean;
 }
+
+// %% OTHERS DTO
+export class LoginUserByCredentialsDto {
+	@IsEmail()
+	@ApiProperty({
+		example: 'juan.perez@example.com',
+		required: true,
+	})
+	email: string;
+
+	@IsString()
+	@ApiProperty({
+		example: 'password123',
+		required: true,
+	})
+	password: string;
+}
+
+export class ChangeRoleDto {
+	@IsString()
+	@ApiProperty({})
+	newRole: RoleCode;
+}
+
+// %% OTHERS CONSTANTS
+export const ROLE_CODES = {
+	ADMIN: 'ADMIN',
+	PROFESSOR: 'PROFESSOR',
+} as const;
+
+export type RoleCode = (typeof ROLE_CODES)[keyof typeof ROLE_CODES];

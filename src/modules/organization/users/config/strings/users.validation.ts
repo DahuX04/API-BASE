@@ -3,6 +3,7 @@ export const usersValidationStrings = {
 		documentCodeExists: 'El número de documento ya existe',
 		emailExists: 'El correo ya existe',
 		notFound: 'El usuario no existe',
+		invalidCredentials: 'Credenciales inválidas',
 	},
 	result: {
 		createFailed: 'No se pudo registrar el usuario',
