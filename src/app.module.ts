@@ -109,27 +109,28 @@ import { ScoreModule } from './modules/survey/scores/scores.module';
 
 		/* DATABASE */
 		TypeOrmModule.forRootAsync({
-			useFactory: async (configService: ConfigService): Promise<TypeOrmModuleOptions> => ({
-				type: configService.get<string>('DB_TYPE') as any,
-				host: configService.get<string>('DB_HOST'),
-				port: configService.get<number>('DB_PORT'),
-				username: configService.get<string>('DB_USER'),
-				password: configService.get<string>('DB_PASSWORD'),
-				database: configService.get<string>('DB_NAME'),
-				ssl: {
-					rejectUnauthorized: false,
-				},
-				synchronize: false,
-				entities: [__dirname + '/**/*.entity{.ts,.js}'],
-				timezone: 'Z',
-				logging: ['error'],
-				extra: {
-					max: 10,
-					idleTimeoutMillis: 30000,
-					connectionTimeoutMillis: 5000,
-					keepAlive: true,
-				},
-			}),
+			useFactory: async (configService: ConfigService): Promise<TypeOrmModuleOptions> => {
+				const sslEnabled = (configService.get<string>('DB_SSL') ?? '').toLowerCase() === 'true';
+				return {
+					type: configService.get<string>('DB_TYPE') as any,
+					host: configService.get<string>('DB_HOST'),
+					port: configService.get<number>('DB_PORT'),
+					username: configService.get<string>('DB_USER'),
+					password: configService.get<string>('DB_PASSWORD'),
+					database: configService.get<string>('DB_NAME'),
+					ssl: sslEnabled ? { rejectUnauthorized: false } : false,
+					synchronize: false,
+					entities: [__dirname + '/**/*.entity{.ts,.js}'],
+					timezone: 'Z',
+					logging: ['error'],
+					extra: {
+						max: 10,
+						idleTimeoutMillis: 30000,
+						connectionTimeoutMillis: 5000,
+						keepAlive: true,
+					},
+				};
+			},
 			inject: [ConfigService],
 		}),
 

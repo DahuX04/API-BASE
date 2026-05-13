@@ -16,7 +16,7 @@ async function run() {
 	await tenantDataSource.initialize();
 
 	console.log(`🌱 Setting schema: ${tenant}`);
-	await tenantDataSource.query(`SET search_path TO "public"`);
+	await tenantDataSource.query(`SET search_path TO "organization"`);
 
 	console.log(`🌱 Seeding auth module: ${tenant}`);
 	

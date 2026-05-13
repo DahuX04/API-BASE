@@ -11,4 +11,14 @@ export class UserRepository extends BaseRepostitory {
 	) {
 		super(repository, dataSource);
 	}
+
+	async findOneByEmailWithPassword(email: string) {
+		const repo = this.dataSource.getRepository(UserEntity);
+		return repo
+			.createQueryBuilder('user')
+			.addSelect('user.password')
+			.where('user.email = :email', { email })
+			.andWhere('user.is_active = :isActive', { isActive: true })
+			.getOne();
+	}
 }

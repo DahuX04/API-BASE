@@ -94,7 +94,7 @@ export class UserService extends BaseService<UserRepository> {
 	}
 
 	async loginByCredentials(email: string, password: string, role?: RoleCode) {
-		const user = await this.getUser(null, email);
+		const user = await this.repository.findOneByEmailWithPassword(email);
 		const accessToken = await this.createUserLogin(user, password, role);
 
 		return {
