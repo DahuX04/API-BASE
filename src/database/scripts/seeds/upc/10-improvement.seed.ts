@@ -1,108 +1,169 @@
-import simpleDS from '../typeorm.config';
-import * as dotenv from 'dotenv';
+import { runTenantSeed } from '../seed-runner';
 
-dotenv.config();
-
-async function run() {
-	const tenant = process.argv[2];
-
-	if (!tenant) {
-		console.error('Debe indicar el schema: npm run seed:tenant upc');
-		process.exit(1);
-	}
-
-	const tenantDataSource = simpleDS;
-	await tenantDataSource.initialize();
-
-	console.log(`🌱 Setting schema: ${tenant}`);
-	await tenantDataSource.query(`SET search_path TO "${tenant}"`);
-
-	console.log(`🌱 Seeding improvement module: ${tenant}`);
-	
-	// Insert findings (quality issues identified)
+runTenantSeed('improvement module', async (tenantDataSource) => {
 	await tenantDataSource.query(`
-		INSERT INTO findings (code, title, description, severity, status, identified_date, source, is_active, created_at, updated_at)
+		INSERT INTO "improvement"."actions" (description)
+		SELECT v.description
+		FROM (
 			VALUES
-			('FINDING_CS_CONTENT_2024', 'Necesidad de actualizar contenido técnico', 'Los temas de cloud computing requieren actualización en el plan de estudios', 'MEDIUM', 'IDENTIFIED', '2024-11-01', 'CURRICULUM_REVIEW', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('FINDING_COMM_WRITING_2024', 'Mejora en habilidades de escritura', 'Algunos estudiantes presentan dificultades en redacción académica', 'LOW', 'IDENTIFIED', '2024-11-15', 'STUDENT_FEEDBACK', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('FINDING_LAB_RESOURCES_2024', 'Recursos de laboratorio insuficientes', 'Se necesitan más computadoras en los laboratorios de software', 'HIGH', 'IDENTIFIED', '2024-10-01', 'FACILITY_ASSESSMENT', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('FINDING_MENTOR_SUPPORT_2024', 'Necesidad de mentorías', 'Estudiantes de primer año requieren mayor apoyo tutorial', 'MEDIUM', 'ANALYZED', '2024-11-20', 'STUDENT_INTERVIEW', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('FINDING_INTERNSHIP_PLACEMENT_2024', 'Mejorar colocación de pasantías', 'Aumentar convenios con empresas para prácticas profesionales', 'HIGH', 'ANALYZED', '2024-10-15', 'ALUMNI_SURVEY', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-			ON CONFLICT (code) DO NOTHING;
+				('Reforzar ejercicios de analisis algoritmico en Fundamentos de Programacion.'),
+				('Incorporar revisiones por pares en el Proyecto Integrador de Software.'),
+				('Actualizar la matriz de evidencias para indicadores de acreditacion.')
+		) AS v(description)
+		WHERE NOT EXISTS (
+			SELECT 1 FROM "improvement"."actions" action WHERE action.description = v.description
+		);
 	`);
 
-	// Insert actions (improvements to implement)
 	await tenantDataSource.query(`
-		INSERT INTO actions (code, title, description, action_type, priority, target_date, responsible, status, is_active, created_at, updated_at)
+		INSERT INTO "improvement"."findings" (
+			criticality_type_id,
+			instrument_id,
+			staff_id,
+			correlative,
+			description,
+			study_plan_course_id,
+			campus_id
+		)
+		SELECT criticality.id, instrument.id, staff.id, v.correlative, v.description, spc.id, campus.id
+		FROM (
 			VALUES
-			('ACTION_UPDATE_CURRICULUM', 'Actualizar contenido técnico del plan de estudios', 'Incluir temas de cloud computing y contenedores en los cursos de programación', 'CURRICULUM', 'HIGH', '2025-03-31', 'Director Académico', 'PLANNED', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('ACTION_WRITING_WORKSHOPS', 'Talleres de redacción académica', 'Ofrecer talleres de escritura académica y técnica a estudiantes', 'STUDENT_SUPPORT', 'MEDIUM', '2025-02-28', 'Centro de Escritura', 'PLANNED', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('ACTION_ACQUIRE_HARDWARE', 'Adquirir equipamiento de laboratorio', 'Compra e instalación de nuevas estaciones de trabajo', 'RESOURCE', 'HIGH', '2025-04-30', 'Director Administrativo', 'IN_PROGRESS', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('ACTION_MENTORING_PROGRAM', 'Implementar programa de mentoría', 'Programa de mentoría entre estudiantes avanzados y de primer año', 'STUDENT_SUPPORT', 'MEDIUM', '2025-02-28', 'Coordinador de Estudiantes', 'PLANNED', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('ACTION_INDUSTRY_PARTNERSHIPS', 'Establecer convenios empresariales', 'Negociar convenios con empresas para prácticas profesionales', 'PARTNERSHIP', 'HIGH', '2025-03-15', 'Oficina de Egresados', 'IN_PROGRESS', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-			ON CONFLICT (code) DO NOTHING;
+				('TG801-T002', 'INST_FP_EXAM', 'calidad@upc.edu.pe', 2026001, 'Se identifico necesidad de reforzar la formulacion de algoritmos antes de la implementacion.', 'SP_SOFT26', 'AP_2026_1', 'Fundamentos de Programacion', 'CAMPUS_MON'),
+				('TG801-T001', 'INST_CAPSTONE', 'calidad@upc.edu.pe', 2026002, 'Los equipos requieren mayor evidencia de colaboracion registrada durante el proyecto.', 'SP_SOFT26', 'AP_2026_2', 'Proyecto Integrador de Software', 'CAMPUS_MON')
+		) AS v(criticality_type_code, instrument_code, staff_email, correlative, description, study_plan_code, academic_period_code, course_name, campus_code)
+		JOIN "core"."types" criticality
+			ON criticality.code = v.criticality_type_code
+		JOIN "evidence"."instruments" instrument
+			ON instrument.code = v.instrument_code
+		JOIN "organization"."staff" staff
+			ON staff.staff_email = v.staff_email
+		JOIN "academic"."study_plans" sp
+			ON sp.code = v.study_plan_code
+		JOIN "academic"."study_plan_academic_periods" spap
+			ON spap.study_plan_id = sp.id
+		JOIN "academic"."academic_periods" ap
+			ON ap.id = spap.academic_period_id AND ap.code = v.academic_period_code
+		JOIN "academic"."courses" course
+			ON course.name = v.course_name
+		JOIN "academic"."study_plan_courses" spc
+			ON spc.study_plan_academic_period_id = spap.id AND spc.course_id = course.id
+		JOIN "organization"."campuses" campus
+			ON campus.code = v.campus_code
+		WHERE NOT EXISTS (
+			SELECT 1 FROM "improvement"."findings" finding WHERE finding.correlative = v.correlative
+		);
 	`);
 
-	// Insert improvement plans
 	await tenantDataSource.query(`
-		INSERT INTO plans (code, name, description, academic_period, start_date, end_date, status, responsible, is_active, created_at, updated_at)
+		INSERT INTO "improvement"."finding_actions" (
+			finding_id,
+			action_id,
+			in_plan_required
+		)
+		SELECT finding.id, action.id, v.in_plan_required
+		FROM (
 			VALUES
-			('PLAN_2024_CURRICULUM', 'Plan de Mejora Curricular 2024', 'Plan para actualizar y mejorar el contenido del plan de estudios', 'AP_2024_1', '2024-11-01', '2025-06-30', 'IN_PROGRESS', 'Director Académico', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PLAN_2024_STUDENT_SUPPORT', 'Plan de Apoyo a Estudiantes 2024', 'Plan integral de apoyo y mentoría estudiantil', 'AP_2024_1', '2024-11-15', '2025-06-30', 'PLANNED', 'Coordinador de Estudiantes', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PLAN_2024_RESOURCES', 'Plan de Recursos e Infraestructura 2024', 'Plan para mejorar recursos y facilidades de laboratorio', 'AP_2024_1', '2024-10-01', '2025-06-30', 'IN_PROGRESS', 'Director Administrativo', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-			ON CONFLICT (code) DO NOTHING;
+				(2026001, 'Reforzar ejercicios de analisis algoritmico en Fundamentos de Programacion.', true),
+				(2026002, 'Incorporar revisiones por pares en el Proyecto Integrador de Software.', true),
+				(2026001, 'Actualizar la matriz de evidencias para indicadores de acreditacion.', false)
+		) AS v(finding_correlative, action_description, in_plan_required)
+		JOIN "improvement"."findings" finding
+			ON finding.correlative = v.finding_correlative
+		JOIN "improvement"."actions" action
+			ON action.description = v.action_description
+		WHERE NOT EXISTS (
+			SELECT 1
+			FROM "improvement"."finding_actions" fa
+			WHERE fa.finding_id = finding.id AND fa.action_id = action.id
+		);
 	`);
 
-	// Link findings to actions
 	await tenantDataSource.query(`
-		INSERT INTO finding_actions (finding_id, action_id, is_active, created_at, updated_at)
-			SELECT f.id, a.id, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
-			FROM findings f
-			JOIN actions a ON (
-				(f.code = 'FINDING_CS_CONTENT_2024' AND a.code = 'ACTION_UPDATE_CURRICULUM') OR
-				(f.code = 'FINDING_COMM_WRITING_2024' AND a.code = 'ACTION_WRITING_WORKSHOPS') OR
-				(f.code = 'FINDING_LAB_RESOURCES_2024' AND a.code = 'ACTION_ACQUIRE_HARDWARE') OR
-				(f.code = 'FINDING_MENTOR_SUPPORT_2024' AND a.code = 'ACTION_MENTORING_PROGRAM') OR
-				(f.code = 'FINDING_INTERNSHIP_PLACEMENT_2024' AND a.code = 'ACTION_INDUSTRY_PARTNERSHIPS')
-			)
-			ON CONFLICT DO NOTHING;
+		INSERT INTO "improvement"."plans" (
+			program_id,
+			academic_period_id,
+			name,
+			description,
+			is_open
+		)
+		SELECT program.id, period.id, v.name, v.description, v.is_open
+		FROM (
+			VALUES
+				('PROG_SOFT', 'AP_2026_1', 'Plan de mejora de evidencias 2026-1', 'Plan para cerrar brechas detectadas en evidencias de resultados de aprendizaje.', true),
+				('PROG_SOFT', 'AP_2026_2', 'Plan de seguimiento capstone 2026-2', 'Plan para fortalecer seguimiento de equipos en el proyecto integrador.', true)
+		) AS v(program_code, academic_period_code, name, description, is_open)
+		JOIN "academic"."programs" program
+			ON program.code = v.program_code
+		JOIN "academic"."academic_periods" period
+			ON period.code = v.academic_period_code
+		WHERE NOT EXISTS (
+			SELECT 1 FROM "improvement"."plans" plan WHERE plan.name = v.name
+		);
 	`);
 
-	// Link findings to outcomes (which outcomes are affected)
 	await tenantDataSource.query(`
-		INSERT INTO finding_outcomes (finding_id, outcome_code, is_active, created_at, updated_at)
-			SELECT f.id, v.outcome_code, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
-			FROM findings f
-			JOIN (
-				VALUES
-				('FINDING_CS_CONTENT_2024', 'OUT_004'),
-				('FINDING_CS_CONTENT_2024', 'OUT_006'),
-				('FINDING_COMM_WRITING_2024', 'OUT_002'),
-				('FINDING_LAB_RESOURCES_2024', 'OUT_004'),
-				('FINDING_MENTOR_SUPPORT_2024', 'OUT_001'),
-				('FINDING_INTERNSHIP_PLACEMENT_2024', 'OUT_004'),
-				('FINDING_INTERNSHIP_PLACEMENT_2024', 'OUT_005')
-			) AS v(finding_code, outcome_code)
-			ON f.code = v.finding_code
-			ON CONFLICT DO NOTHING;
+		INSERT INTO "improvement"."plan_actions" (
+			plan_id,
+			finding_action_id,
+			evidences
+		)
+		SELECT plan.id, finding_action.id, v.evidences
+		FROM (
+			VALUES
+				('Plan de mejora de evidencias 2026-1', 2026001, 'Reforzar ejercicios de analisis algoritmico en Fundamentos de Programacion.', '{"required":["syllabus","exercise-bank"]}'::jsonb),
+				('Plan de seguimiento capstone 2026-2', 2026002, 'Incorporar revisiones por pares en el Proyecto Integrador de Software.', '{"required":["peer-review-log","team-rubric"]}'::jsonb)
+		) AS v(plan_name, finding_correlative, action_description, evidences)
+		JOIN "improvement"."plans" plan
+			ON plan.name = v.plan_name
+		JOIN "improvement"."findings" finding
+			ON finding.correlative = v.finding_correlative
+		JOIN "improvement"."actions" action
+			ON action.description = v.action_description
+		JOIN "improvement"."finding_actions" finding_action
+			ON finding_action.finding_id = finding.id AND finding_action.action_id = action.id
+		WHERE NOT EXISTS (
+			SELECT 1
+			FROM "improvement"."plan_actions" pa
+			WHERE pa.plan_id = plan.id AND pa.finding_action_id = finding_action.id
+		);
 	`);
 
-	// Link actions to plans
 	await tenantDataSource.query(`
-		INSERT INTO plan_actions (plan_id, action_id, is_active, created_at, updated_at)
-			SELECT p.id, a.id, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
-			FROM plans p
-			JOIN actions a ON (
-				(p.code = 'PLAN_2024_CURRICULUM' AND a.code IN ('ACTION_UPDATE_CURRICULUM')) OR
-				(p.code = 'PLAN_2024_STUDENT_SUPPORT' AND a.code IN ('ACTION_WRITING_WORKSHOPS', 'ACTION_MENTORING_PROGRAM')) OR
-				(p.code = 'PLAN_2024_RESOURCES' AND a.code IN ('ACTION_ACQUIRE_HARDWARE', 'ACTION_INDUSTRY_PARTNERSHIPS'))
-			)
-			ON CONFLICT DO NOTHING;
+		INSERT INTO "improvement"."finding_outcomes" (finding_id, outcome_id)
+		SELECT finding.id, outcome.id
+		FROM (
+			VALUES
+				(2026001, 'OUT_SOFT_01'),
+				(2026001, 'OUT_SOFT_04'),
+				(2026002, 'OUT_SOFT_03')
+		) AS v(finding_correlative, outcome_code)
+		JOIN "improvement"."findings" finding
+			ON finding.correlative = v.finding_correlative
+		JOIN "accreditation"."outcomes" outcome
+			ON outcome.outcome_code = v.outcome_code
+		WHERE NOT EXISTS (
+			SELECT 1
+			FROM "improvement"."finding_outcomes" fo
+			WHERE fo.finding_id = finding.id AND fo.outcome_id = outcome.id
+		);
 	`);
 
-	await tenantDataSource.destroy();
-
-	console.log('✅ Improvement seed completado.');
-}
-
-run().catch(console.error);
+	await tenantDataSource.query(`
+		INSERT INTO "ifc"."ifc_findings" (ifc_id, finding_id)
+		SELECT ifc.id, finding.id
+		FROM (
+			VALUES
+				('IFC para medir pensamiento critico y solucion tecnica en Fundamentos de Programacion.', 2026001),
+				('IFC para medir colaboracion y solucion tecnica en Proyecto Integrador.', 2026002)
+		) AS v(ifc_information, finding_correlative)
+		JOIN "evidence"."ifcs" ifc
+			ON ifc.information = v.ifc_information
+		JOIN "improvement"."findings" finding
+			ON finding.correlative = v.finding_correlative
+		WHERE NOT EXISTS (
+			SELECT 1
+			FROM "ifc"."ifc_findings" ifc_finding
+			WHERE ifc_finding.ifc_id = ifc.id AND ifc_finding.finding_id = finding.id
+		);
+	`);
+});

@@ -1,6 +1,6 @@
 import { Entity, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from 'src/commons/base.entity';
-import { TextMediumColumn, IntegerFKIDColumn, IntegerColumn } from 'src/commons/configs/db.configs';
+import { TextMediumColumn, IntegerFKIDColumn, IntegerColumn, BooleanColumn } from 'src/commons/configs/db.configs';
 import { CampusEntity } from 'src/modules/organization/campuses/model/campuses.entity';
 import { InstrumentEntity } from 'src/modules/evidence/instruments/model/instruments.entity';
 import { StaffEntity } from 'src/modules/organization/staff/model/staff.entity';
@@ -30,6 +30,12 @@ export class FindingEntity extends BaseEntity {
 
 	@IntegerFKIDColumn({ nullable: false })
 	campus_id: number;
+
+	@BooleanColumn({ nullable: false, default: true })
+	is_automatic: boolean;
+
+	@IntegerColumn({ nullable: false })
+	finding_status_type_id: number;
 
 	// %% RELACIONES
 

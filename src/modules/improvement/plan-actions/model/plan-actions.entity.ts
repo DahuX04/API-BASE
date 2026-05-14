@@ -1,6 +1,6 @@
 import { Entity, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from 'src/commons/base.entity';
-import { IntegerFKIDColumn, JsonColumn } from 'src/commons/configs/db.configs';
+import { IntegerFKIDColumn } from 'src/commons/configs/db.configs';
 import { FindingActionEntity } from 'src/modules/improvement/finding-actions/model/finding-actions.entity';
 import { PlanEntity } from 'src/modules/improvement/plans/model/plans.entity';
 
@@ -13,9 +13,6 @@ export class PlanActionEntity extends BaseEntity {
 
 	@IntegerFKIDColumn({ nullable: false })
 	finding_action_id: number;
-
-	@JsonColumn({ nullable: true })
-	evidences: any;
 
 	// %% RELACIONES
 

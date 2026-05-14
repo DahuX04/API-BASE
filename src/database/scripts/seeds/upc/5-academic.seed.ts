@@ -1,222 +1,339 @@
-import simpleDS from '../typeorm.config';
-import * as dotenv from 'dotenv';
+import { runTenantSeed } from '../seed-runner';
 
-dotenv.config();
-
-async function run() {
-	const tenant = process.argv[2];
-
-	if (!tenant) {
-		console.error('Debe indicar el schema: npm run seed:tenant upc');
-		process.exit(1);
-	}
-
-	const tenantDataSource = simpleDS;
-	await tenantDataSource.initialize();
-
-	console.log(`🌱 Setting schema: ${tenant}`);
-	await tenantDataSource.query(`SET search_path TO "${tenant}"`);
-
-	console.log(`🌱 Seeding academic module: ${tenant}`);
-	
-	// First, get the modality_type_id from types (assuming it was created in types seed)
-	// For now, we'll use hardcoded IDs or fetch them
-	
-	// Insert programs
+runTenantSeed('academic module', async (tenantDataSource) => {
 	await tenantDataSource.query(`
-		INSERT INTO programs (code, name, degree, modality_type_id, is_active, created_at, updated_at)
+		INSERT INTO "academic"."academic_periods" (modality_type_Id, code, start_date, end_date)
+		SELECT t.id, v.code, v.start_date::timestamptz, v.end_date::timestamptz
+		FROM "core"."types" t
+		JOIN (
 			VALUES
-			('PROG_CS_UG', 'Ingeniería de Software', 'Pregrado', 1, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PROG_CE_UG', 'Ingeniería Civil', 'Pregrado', 1, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PROG_IE_UG', 'Ingeniería Industrial', 'Pregrado', 1, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PROG_BA_UG', 'Administración de Empresas', 'Pregrado', 1, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PROG_MK_UG', 'Marketing', 'Pregrado', 1, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PROG_ACC_UG', 'Contabilidad', 'Pregrado', 1, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PROG_COM_UG', 'Comunicación Social', 'Pregrado', 1, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PROG_LAW_UG', 'Derecho', 'Pregrado', 1, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PROG_ENG_UG', 'Enfermería', 'Pregrado', 1, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PROG_ARCH_UG', 'Arquitectura', 'Pregrado', 1, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PROG_MBA', 'MBA - Maestría en Administración de Negocios', 'Postgrado', 2, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PROG_MENG', 'Maestría en Ingeniería de Software', 'Postgrado', 2, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-			ON CONFLICT (code) DO NOTHING;
+				('TG103-T001', 'AP_2026_1', '2026-03-18', '2026-07-20'),
+				('TG103-T001', 'AP_2026_2', '2026-08-17', '2026-12-18')
+		) AS v(modality_type_code, code, start_date, end_date)
+			ON t.code = v.modality_type_code
+		WHERE NOT EXISTS (
+			SELECT 1 FROM "academic"."academic_periods" ap WHERE ap.code = v.code
+		);
 	`);
 
-	// Insert academic periods
 	await tenantDataSource.query(`
-		INSERT INTO academic_periods (code, name, start_date, end_date, is_active, created_at, updated_at)
+		INSERT INTO "academic"."programs" (modality_type_id, code, name, degree)
+		SELECT t.id, v.code, v.name, v.degree
+		FROM "core"."types" t
+		JOIN (
 			VALUES
-			('AP_2024_1', 'Período Académico 2024-1', '2024-09-15', '2025-01-31', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('AP_2024_2', 'Período Académico 2024-2', '2025-02-01', '2025-06-30', false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('AP_2025_1', 'Período Académico 2025-1', '2025-09-15', '2026-01-31', false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('AP_2025_2', 'Período Académico 2025-2', '2026-02-01', '2026-06-30', false, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-			ON CONFLICT (code) DO NOTHING;
+				('TG103-T001', 'PROG_SOFT', 'Ingenieria de Software', 'Bachiller'),
+				('TG103-T001', 'PROG_SIST', 'Ingenieria de Sistemas', 'Bachiller'),
+				('TG103-T002', 'PROG_ADMIN', 'Administracion de Empresas', 'Bachiller')
+		) AS v(modality_type_code, code, name, degree)
+			ON t.code = v.modality_type_code
+		WHERE NOT EXISTS (
+			SELECT 1 FROM "academic"."programs" p WHERE p.code = v.code
+		);
 	`);
 
-	// Insert performance levels (typical grading scale)
 	await tenantDataSource.query(`
-		INSERT INTO performance_levels (code, name, min_grade, max_grade, description, is_active, created_at, updated_at)
+		INSERT INTO "academic"."students" (user_id, program_id, graduation_modality_type_id)
+		SELECT u.id, p.id, t.id
+		FROM "organization"."users" u
+		JOIN (
 			VALUES
-			('PL_EXCELLENT', 'Excelente', 18, 20, 'Desempeño excepcional del estudiante', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PL_VERY_GOOD', 'Muy Bueno', 16, 17.99, 'Desempeño muy bueno, supera expectativas', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PL_GOOD', 'Bueno', 14, 15.99, 'Desempeño satisfactorio, cumple expectativas', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PL_SATISFACTORY', 'Satisfactorio', 10.5, 13.99, 'Desempeño aceptable, cumple requisitos mínimos', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PL_NEEDS_IMPROVEMENT', 'Necesita Mejorar', 0, 10.49, 'Desempeño insuficiente, no cumple requisitos', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-			ON CONFLICT (code) DO NOTHING;
+				('student.luis.ramirez@upc.edu.pe', 'PROG_SOFT', 'TG202-T002'),
+				('student.sofia.torres@upc.edu.pe', 'PROG_SOFT', 'TG202-T002')
+		) AS v(email, program_code, graduation_type_code)
+			ON u.email = v.email
+		JOIN "academic"."programs" p
+			ON p.code = v.program_code
+		JOIN "core"."types" t
+			ON t.code = v.graduation_type_code
+		WHERE NOT EXISTS (
+			SELECT 1 FROM "academic"."students" s WHERE s.user_id = u.id
+		);
 	`);
 
-	// Insert courses
 	await tenantDataSource.query(`
-		INSERT INTO courses (code, name, credits, hours_theory, hours_practice, is_active, created_at, updated_at)
+		INSERT INTO "academic"."courses" (name, description, learning_outcome)
+		SELECT v.name, v.description, v.learning_outcome
+		FROM (
 			VALUES
-			('COURSE_CS101', 'Fundamentos de Programación', 4, 3, 2, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('COURSE_CS201', 'Programación Orientada a Objetos', 4, 3, 2, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('COURSE_CS301', 'Estructuras de Datos', 4, 3, 2, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('COURSE_CS401', 'Algoritmos Avanzados', 4, 3, 2, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('COURSE_CE101', 'Cálculo I', 5, 4, 1, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('COURSE_CE201', 'Mecánica de Sólidos', 4, 3, 2, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('COURSE_IE101', 'Introducción a la Ingeniería Industrial', 3, 3, 0, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('COURSE_BA101', 'Fundamentos de Administración', 3, 3, 0, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('COURSE_ACC101', 'Contabilidad General I', 4, 3, 1, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('COURSE_LAW101', 'Introducción al Derecho', 3, 3, 0, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-			ON CONFLICT (code) DO NOTHING;
+				('Fundamentos de Programacion', 'Curso introductorio de programacion estructurada', 'Construye soluciones basicas usando algoritmos y estructuras de control.'),
+				('Ingenieria de Requisitos', 'Curso de analisis y especificacion de requisitos', 'Elicita, documenta y valida requisitos de software con stakeholders.'),
+				('Proyecto Integrador de Software', 'Curso integrador basado en proyecto', 'Integra competencias tecnicas, comunicacionales y de trabajo en equipo.')
+		) AS v(name, description, learning_outcome)
+		WHERE NOT EXISTS (
+			SELECT 1 FROM "academic"."courses" c WHERE c.name = v.name
+		);
 	`);
 
-	// Insert professors
 	await tenantDataSource.query(`
-		INSERT INTO professors (code, name, email, phone, is_active, created_at, updated_at)
+		INSERT INTO "academic"."study_plans" (program_id, code, name, description)
+		SELECT p.id, v.code, v.name, v.description
+		FROM "academic"."programs" p
+		JOIN (
 			VALUES
-			('PROF_001', 'Juan Pérez Rodríguez', 'prof_juan_perez@upc.edu.pe', '+51987654321', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PROF_002', 'María García Martínez', 'prof_maria_garcia@upc.edu.pe', '+51987654322', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PROF_003', 'Carlos López Fernández', 'prof_carlos_lopez@upc.edu.pe', '+51987654323', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PROF_004', 'Ana Martínez González', 'prof_ana_martinez@upc.edu.pe', '+51987654324', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-			ON CONFLICT (code) DO NOTHING;
+				('PROG_SOFT', 'SP_SOFT26', 'Plan 2026 Ingenieria de Software', 'Plan de estudios base para el programa de Ingenieria de Software'),
+				('PROG_ADMIN', 'SP_ADM26', 'Plan 2026 Administracion', 'Plan de estudios base para Administracion de Empresas')
+		) AS v(program_code, code, name, description)
+			ON p.code = v.program_code
+		WHERE NOT EXISTS (
+			SELECT 1 FROM "academic"."study_plans" sp WHERE sp.code = v.code
+		);
 	`);
 
-	// Insert students
 	await tenantDataSource.query(`
-		INSERT INTO students (user_id, program_id, graduation_modality_type_id, enrollment_status, is_active, created_at, updated_at)
-			SELECT u.id, p.id, 1, 'ACTIVE', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
-			FROM (SELECT id FROM "public".users WHERE email LIKE 'student_%@upc.edu.pe' LIMIT 8) u
-			CROSS JOIN (SELECT id FROM programs WHERE code = 'PROG_CS_UG' LIMIT 1) p
-			ON CONFLICT (user_id) DO NOTHING;
+		INSERT INTO "academic"."study_plan_academic_periods" (study_plan_id, academic_period_id)
+		SELECT sp.id, ap.id
+		FROM "academic"."study_plans" sp
+		JOIN (
+			VALUES
+				('SP_SOFT26', 'AP_2026_1'),
+				('SP_SOFT26', 'AP_2026_2'),
+				('SP_ADM26', 'AP_2026_1')
+		) AS v(study_plan_code, academic_period_code)
+			ON sp.code = v.study_plan_code
+		JOIN "academic"."academic_periods" ap
+			ON ap.code = v.academic_period_code
+		WHERE NOT EXISTS (
+			SELECT 1
+			FROM "academic"."study_plan_academic_periods" spap
+			WHERE spap.study_plan_id = sp.id AND spap.academic_period_id = ap.id
+		);
 	`);
 
-	// Insert course sections (multiple sections of same course)
 	await tenantDataSource.query(`
-		INSERT INTO course_sections (course_id, academic_period_id, section_number, professor_id, schedule, capacity, is_active, created_at, updated_at)
-			SELECT c.id, ap.id, v.section, p.id, v.schedule, v.capacity, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
-			FROM courses c
-			JOIN academic_periods ap ON ap.code = 'AP_2024_1'
-			JOIN professors p ON p.code = 'PROF_001'
-			JOIN (
-				VALUES
-				('COURSE_CS101', 'A', '{"day":"Monday","time":"09:00-11:00"}'::jsonb, 30),
-				('COURSE_CS101', 'B', '{"day":"Tuesday","time":"09:00-11:00"}'::jsonb, 30),
-				('COURSE_CS201', 'A', '{"day":"Wednesday","time":"11:00-13:00"}'::jsonb, 30),
-				('COURSE_CS301', 'A', '{"day":"Thursday","time":"14:00-16:00"}'::jsonb, 30)
-			) AS v(course_code, section, schedule, capacity)
-			ON c.code = v.course_code
-			ON CONFLICT DO NOTHING;
+		INSERT INTO "academic"."study_plan_courses" (
+			study_plan_academic_period_id,
+			course_id,
+			is_elective,
+			level_type_id
+		)
+		SELECT spap.id, c.id, v.is_elective, t.id
+		FROM "academic"."study_plans" sp
+		JOIN "academic"."study_plan_academic_periods" spap
+			ON spap.study_plan_id = sp.id
+		JOIN "academic"."academic_periods" ap
+			ON ap.id = spap.academic_period_id
+		JOIN (
+			VALUES
+				('SP_SOFT26', 'AP_2026_1', 'Fundamentos de Programacion', false, 'TG203-T001'),
+				('SP_SOFT26', 'AP_2026_1', 'Ingenieria de Requisitos', false, 'TG203-T002'),
+				('SP_SOFT26', 'AP_2026_2', 'Proyecto Integrador de Software', false, 'TG203-T003')
+		) AS v(study_plan_code, academic_period_code, course_name, is_elective, level_type_code)
+			ON sp.code = v.study_plan_code AND ap.code = v.academic_period_code
+		JOIN "academic"."courses" c
+			ON c.name = v.course_name
+		JOIN "core"."types" t
+			ON t.code = v.level_type_code
+		WHERE NOT EXISTS (
+			SELECT 1
+			FROM "academic"."study_plan_courses" spc
+			WHERE spc.study_plan_academic_period_id = spap.id AND spc.course_id = c.id
+		);
 	`);
 
-	// Insert student section enrollments
 	await tenantDataSource.query(`
-		INSERT INTO student_section_enrollments (student_id, course_section_id, enrollment_date, status, is_active, created_at, updated_at)
-			SELECT s.id, cs.id, CURRENT_DATE, 'ENROLLED', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
-			FROM students s
-			JOIN course_sections cs ON cs.academic_period_id = (SELECT id FROM academic_periods WHERE code = 'AP_2024_1' LIMIT 1)
-			LIMIT 40
-			ON CONFLICT DO NOTHING;
+		INSERT INTO "academic"."professors" (staff_id)
+		SELECT s.id
+		FROM "organization"."staff" s
+		WHERE s.staff_email IN ('prof.juan.perez@upc.edu.pe', 'prof.maria.garcia@upc.edu.pe')
+			AND NOT EXISTS (
+				SELECT 1 FROM "academic"."professors" p WHERE p.staff_id = s.id
+			);
 	`);
 
-	// Insert study plans
 	await tenantDataSource.query(`
-		INSERT INTO study_plans (code, name, program_id, version, total_credits, is_active, created_at, updated_at)
-			SELECT v.code, v.name, p.id, v.version, v.total_credits, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
-			FROM programs p
-			JOIN (
-				VALUES
-				('PROG_CS_UG', 'PLAN_CS_2024', 'Plan de Estudios Ingeniería de Software 2024', 1, 180),
-				('PROG_CE_UG', 'PLAN_CE_2024', 'Plan de Estudios Ingeniería Civil 2024', 1, 200),
-				('PROG_IE_UG', 'PLAN_IE_2024', 'Plan de Estudios Ingeniería Industrial 2024', 1, 190)
-			) AS v(prog_code, code, name, version, total_credits)
-			ON p.code = v.prog_code
-			ON CONFLICT (code) DO NOTHING;
+		INSERT INTO "academic"."course_sections" (
+			study_plan_course_id,
+			campus_id,
+			professor_id,
+			section_code,
+			schedule,
+			section_modality_type_id
+		)
+		SELECT
+			spc.id,
+			campus.id,
+			prof.id,
+			v.section_code,
+			v.schedule,
+			modality.id
+		FROM (
+			VALUES
+				('SP_SOFT26', 'AP_2026_1', 'Fundamentos de Programacion', 'SOFT-FP-2026-1-A', 'CAMPUS_MON', 'prof.juan.perez@upc.edu.pe', '{"days":["Monday","Wednesday"],"time":"09:00-11:00"}'::jsonb, 'TG204-T001'),
+				('SP_SOFT26', 'AP_2026_1', 'Ingenieria de Requisitos', 'SOFT-REQ-2026-1-A', 'CAMPUS_MON', 'prof.maria.garcia@upc.edu.pe', '{"days":["Tuesday"],"time":"14:00-17:00"}'::jsonb, 'TG204-T001')
+		) AS v(study_plan_code, academic_period_code, course_name, section_code, campus_code, professor_email, schedule, section_modality_type_code)
+		JOIN "academic"."study_plans" sp
+			ON sp.code = v.study_plan_code
+		JOIN "academic"."study_plan_academic_periods" spap
+			ON spap.study_plan_id = sp.id
+		JOIN "academic"."academic_periods" ap
+			ON ap.id = spap.academic_period_id AND ap.code = v.academic_period_code
+		JOIN "academic"."courses" course
+			ON course.name = v.course_name
+		JOIN "academic"."study_plan_courses" spc
+			ON spc.study_plan_academic_period_id = spap.id AND spc.course_id = course.id
+		JOIN "organization"."campuses" campus
+			ON campus.code = v.campus_code
+		JOIN "organization"."staff" staff
+			ON staff.staff_email = v.professor_email
+		JOIN "academic"."professors" prof
+			ON prof.staff_id = staff.id
+		JOIN "core"."types" modality
+			ON modality.code = v.section_modality_type_code
+		WHERE NOT EXISTS (
+			SELECT 1 FROM "academic"."course_sections" cs WHERE cs.section_code = v.section_code
+		);
 	`);
 
-	// Insert study plan academic periods (vincular planes de estudio a períodos académicos)
 	await tenantDataSource.query(`
-		INSERT INTO study_plan_academic_periods (study_plan_id, academic_period_id, is_active, created_at, updated_at)
-			SELECT sp.id, ap.id, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
-			FROM study_plans sp
-			CROSS JOIN academic_periods ap
-			WHERE ap.code = 'AP_2024_1'
-			ON CONFLICT DO NOTHING;
+		INSERT INTO "academic"."enrolled_students" (
+			student_id,
+			study_plan_academic_period,
+			campus_id,
+			enrollement_modality_type_id
+		)
+		SELECT st.id, spap.id, campus.id, modality.id
+		FROM (
+			VALUES
+				('student.luis.ramirez@upc.edu.pe', 'SP_SOFT26', 'AP_2026_1', 'CAMPUS_MON', 'TG103-T001'),
+				('student.sofia.torres@upc.edu.pe', 'SP_SOFT26', 'AP_2026_1', 'CAMPUS_MON', 'TG103-T001')
+		) AS v(email, study_plan_code, academic_period_code, campus_code, modality_type_code)
+		JOIN "organization"."users" u
+			ON u.email = v.email
+		JOIN "academic"."students" st
+			ON st.user_id = u.id
+		JOIN "academic"."study_plans" sp
+			ON sp.code = v.study_plan_code
+		JOIN "academic"."study_plan_academic_periods" spap
+			ON spap.study_plan_id = sp.id
+		JOIN "academic"."academic_periods" ap
+			ON ap.id = spap.academic_period_id AND ap.code = v.academic_period_code
+		JOIN "organization"."campuses" campus
+			ON campus.code = v.campus_code
+		JOIN "core"."types" modality
+			ON modality.code = v.modality_type_code
+		WHERE NOT EXISTS (
+			SELECT 1
+			FROM "academic"."enrolled_students" es
+			WHERE es.student_id = st.id
+				AND es.study_plan_academic_period = spap.id
+				AND es.campus_id = campus.id
+		);
 	`);
 
-	// Insert study plan courses (cursos asignados a cada período del plan)
 	await tenantDataSource.query(`
-		INSERT INTO study_plan_courses (study_plan_academic_period_id, course_id, is_elective, level_type_id, is_active, created_at, updated_at)
-			SELECT spap.id, c.id, 
-				CASE WHEN c.code IN ('COURSE_CS301', 'COURSE_CS401') THEN true ELSE false END,
-				1,
-				true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
-			FROM study_plan_academic_periods spap
-			JOIN study_plans sp ON spap.study_plan_id = sp.id
-			CROSS JOIN courses c
-			WHERE sp.code = 'PLAN_CS_2024' AND c.code LIKE 'COURSE_CS%'
-			LIMIT 8
-			ON CONFLICT DO NOTHING;
+		INSERT INTO "academic"."student_section_enrollments" (enrolled_student_id, course_section_id)
+		SELECT es.id, cs.id
+		FROM (
+			VALUES
+				('student.luis.ramirez@upc.edu.pe', 'SOFT-FP-2026-1-A'),
+				('student.luis.ramirez@upc.edu.pe', 'SOFT-REQ-2026-1-A'),
+				('student.sofia.torres@upc.edu.pe', 'SOFT-FP-2026-1-A'),
+				('student.sofia.torres@upc.edu.pe', 'SOFT-REQ-2026-1-A')
+		) AS v(email, section_code)
+		JOIN "organization"."users" u
+			ON u.email = v.email
+		JOIN "academic"."students" st
+			ON st.user_id = u.id
+		JOIN "academic"."enrolled_students" es
+			ON es.student_id = st.id
+		JOIN "academic"."course_sections" cs
+			ON cs.section_code = v.section_code
+		WHERE NOT EXISTS (
+			SELECT 1
+			FROM "academic"."student_section_enrollments" sse
+			WHERE sse.enrolled_student_id = es.id AND sse.course_section_id = cs.id
+		);
 	`);
 
-	// Insert enrolled students (estudiantes inscritos en campus y plan de estudio)
 	await tenantDataSource.query(`
-		INSERT INTO enrolled_students (student_id, study_plan_academic_period, campus_id, enrollement_modality_type_id, is_active, created_at, updated_at)
-			SELECT s.id, spap.id, c.id, 1, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
-			FROM students s
-			JOIN study_plan_academic_periods spap ON spap.academic_period_id = (SELECT id FROM academic_periods WHERE code = 'AP_2024_1' LIMIT 1)
-			CROSS JOIN (SELECT id FROM campuses WHERE code = 'CAMPUS_LIMA_NORTE' LIMIT 1) c
-			LIMIT 8
-			ON CONFLICT DO NOTHING;
+		INSERT INTO "academic"."performance_levels" (
+			instrument_type_id,
+			academic_period_id,
+			name,
+			code,
+			unique_value,
+			min_score,
+			max_score,
+			max_value
+		)
+		SELECT instrument_type.id, ap.id, v.name, v.code, v.unique_value, v.min_score, v.max_score, v.max_value
+		FROM "academic"."academic_periods" ap
+		JOIN "core"."types" instrument_type
+			ON instrument_type.code = 'TG206-T001'
+		JOIN (
+			VALUES
+				('AP_2026_1', 'PL_EXCELLENT', 'Excelente', 4.000000, 17.000000, 20.000000, 20.000000),
+				('AP_2026_1', 'PL_EXPECTED', 'Esperado', 3.000000, 14.000000, 16.999999, 20.000000),
+				('AP_2026_1', 'PL_DEVELOPING', 'En desarrollo', 2.000000, 11.000000, 13.999999, 20.000000),
+				('AP_2026_1', 'PL_STARTING', 'Inicial', 1.000000, 0.000000, 10.999999, 20.000000)
+		) AS v(academic_period_code, code, name, unique_value, min_score, max_score, max_value)
+			ON ap.code = v.academic_period_code
+		WHERE NOT EXISTS (
+			SELECT 1 FROM "academic"."performance_levels" pl WHERE pl.code = v.code
+		);
 	`);
 
-	// Insert course outcomes (learning objectives)
 	await tenantDataSource.query(`
-		INSERT INTO course_outcome_mappings (course_id, outcome_code, outcome_description, is_active, created_at, updated_at)
-			SELECT c.id, v.outcome_code, v.outcome_desc, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
-			FROM courses c
-			JOIN (
-				VALUES
-				('COURSE_CS101', 'CO_CS101_01', 'El estudiante puede escribir programas básicos en Python'),
-				('COURSE_CS101', 'CO_CS101_02', 'El estudiante entiende conceptos de variables y tipos de datos'),
-				('COURSE_CS201', 'CO_CS201_01', 'El estudiante domina POO y puede diseñar clases'),
-				('COURSE_CS301', 'CO_CS301_01', 'El estudiante implementa estructuras de datos eficientemente'),
-				('COURSE_CE101', 'CO_CE101_01', 'El estudiante domina límites, derivadas e integrales'),
-				('COURSE_BA101', 'CO_BA101_01', 'El estudiante entiende funciones de administración básica')
-			) AS v(course_code, outcome_code, outcome_desc)
-			ON c.code = v.course_code
-			ON CONFLICT DO NOTHING;
+		INSERT INTO "academic"."student_course_grades" (
+			student_section_enrollment_id,
+			grade_type_id,
+			grade_type_percentage,
+			grade
+		)
+		SELECT sse.id, grade_type.id, v.grade_type_percentage, v.grade
+		FROM (
+			VALUES
+				('student.luis.ramirez@upc.edu.pe', 'SOFT-FP-2026-1-A', 'TG205-T001', 40.000000, 16.500000),
+				('student.luis.ramirez@upc.edu.pe', 'SOFT-FP-2026-1-A', 'TG205-T002', 60.000000, 17.000000),
+				('student.sofia.torres@upc.edu.pe', 'SOFT-FP-2026-1-A', 'TG205-T001', 40.000000, 15.000000),
+				('student.sofia.torres@upc.edu.pe', 'SOFT-FP-2026-1-A', 'TG205-T002', 60.000000, 16.000000)
+		) AS v(email, section_code, grade_type_code, grade_type_percentage, grade)
+		JOIN "organization"."users" u
+			ON u.email = v.email
+		JOIN "academic"."students" st
+			ON st.user_id = u.id
+		JOIN "academic"."enrolled_students" es
+			ON es.student_id = st.id
+		JOIN "academic"."course_sections" cs
+			ON cs.section_code = v.section_code
+		JOIN "academic"."student_section_enrollments" sse
+			ON sse.enrolled_student_id = es.id AND sse.course_section_id = cs.id
+		JOIN "core"."types" grade_type
+			ON grade_type.code = v.grade_type_code
+		WHERE NOT EXISTS (
+			SELECT 1
+			FROM "academic"."student_course_grades" scg
+			WHERE scg.student_section_enrollment_id = sse.id AND scg.grade_type_id = grade_type.id
+		);
 	`);
 
-	// Insert student course grades
 	await tenantDataSource.query(`
-		INSERT INTO student_course_grades (student_id, course_id, academic_period_id, midterm_grade, final_grade, grade_weight, final_qualification, is_active, created_at, updated_at)
-			SELECT s.id, c.id, ap.id, 
-				(random() * 5 + 13)::numeric(4,2),
-				(random() * 5 + 14)::numeric(4,2),
-				(random() * 10 + 15)::numeric(4,2),
-				(random() * 5 + 14)::numeric(4,2),
-				true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
-			FROM students s
-			JOIN courses c ON c.code IN ('COURSE_CS101', 'COURSE_BA101')
-			JOIN academic_periods ap ON ap.code = 'AP_2024_1'
-			LIMIT 20
-			ON CONFLICT DO NOTHING;
+		INSERT INTO "organization"."charts" (
+			staff_id,
+			academic_period_id,
+			chart_level_id,
+			root_chart_detail_id,
+			level_title,
+			entity_type_id,
+			entity_code
+		)
+		SELECT staff.id, ap.id, cl.id, v.root_chart_detail_id, v.level_title, entity_type.id, v.entity_code
+		FROM (
+			VALUES
+				('calidad@upc.edu.pe', 'AP_2026_1', 1, 0, 'Direccion de Calidad Academica', 'TG903-T002', 'CHART_QUAL_2026'),
+				('prof.juan.perez@upc.edu.pe', 'AP_2026_1', 3, 1, 'Coordinacion de Ingenieria de Software', 'TG903-T001', 'CHART_SOFT_2026')
+		) AS v(staff_email, academic_period_code, chart_level_number, root_chart_detail_id, level_title, entity_type_code, entity_code)
+		JOIN "organization"."staff" staff
+			ON staff.staff_email = v.staff_email
+		JOIN "academic"."academic_periods" ap
+			ON ap.code = v.academic_period_code
+		JOIN "organization"."chart_levels" cl
+			ON cl.level = v.chart_level_number
+		JOIN "core"."types" entity_type
+			ON entity_type.code = v.entity_type_code
+		WHERE NOT EXISTS (
+			SELECT 1 FROM "organization"."charts" chart WHERE chart.entity_code = v.entity_code
+		);
 	`);
-
-	await tenantDataSource.destroy();
-
-	console.log('✅ Academic seed completado.');
-}
-
-run().catch(console.error);
+});

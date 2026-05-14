@@ -23,6 +23,9 @@ export class CreateFindingActionDto extends BaseDto {
 	@IsBoolean()
 	@ApiProperty({ example: true, required: true })
 	in_plan_required: boolean;
+
+	@ApiProperty({ example: { key: 'evidences_value' }, required: true })
+	evidences: any;
 }
 
 export class UpdateFindingActionDto extends BaseDto {
@@ -49,6 +52,10 @@ export class UpdateFindingActionDto extends BaseDto {
 	@IsBoolean()
 	@ApiProperty({ example: true, required: false })
 	in_plan_required?: boolean;
+
+	@IsOptional()
+	@ApiProperty({ example: { key: 'evidences_value' }, required: false })
+	evidences?: any;
 }
 
 export class FilterFindingActionDto extends BaseDto {
@@ -71,4 +78,8 @@ export class FilterFindingActionDto extends BaseDto {
 	@IsOptional()
 	@ApiProperty({ example: true, required: false })
 	in_plan_required?: boolean;
+
+	@IsOptional()
+	@ApiProperty({ example: { key: 'evidences_value' }, required: false })
+	evidences?: any;
 }

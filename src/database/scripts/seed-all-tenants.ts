@@ -13,7 +13,7 @@ async function run() {
 	}
 
 	console.log(`\n🌱 Iniciando seeding para tenant: ${tenant}\n`);
-	console.log('=' .repeat(70));
+	console.log('='.repeat(70));
 
 	const seedFiles = [
 		'1-load-types.ts',
@@ -37,16 +37,13 @@ async function run() {
 	for (const seedFile of seedFiles) {
 		const seedPath = path.join(seedsDir, seedFile);
 		console.log(`\n📝 Ejecutando: ${seedFile}`);
-		console.log('-' .repeat(70));
+		console.log('-'.repeat(70));
 
 		try {
-			execSync(
-				`ts-node -r tsconfig-paths/register ${seedPath} ${tenant}`,
-				{
-					stdio: 'inherit',
-					cwd: path.join(__dirname, '../../..'),
-				}
-			);
+			execSync(`ts-node -r tsconfig-paths/register ${seedPath} ${tenant}`, {
+				stdio: 'inherit',
+				cwd: path.join(__dirname, '../../..'),
+			});
 			console.log(`✅ ${seedFile} completado exitosamente`);
 			successCount++;
 		} catch (error) {
@@ -59,7 +56,7 @@ async function run() {
 		}
 	}
 
-	console.log('\n' + '=' .repeat(70));
+	console.log('\n' + '='.repeat(70));
 	console.log(`\n📊 RESUMEN DE SEEDING:`);
 	console.log(`✅ Exitosos: ${successCount}/${seedFiles.length}`);
 	console.log(`❌ Fallidos: ${failureCount}/${seedFiles.length}`);

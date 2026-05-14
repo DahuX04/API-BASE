@@ -46,6 +46,10 @@ export class CreateSurveyDto extends BaseDto {
 	@IsNumber()
 	@ApiProperty({ example: 1, required: false })
 	survey_number?: number;
+
+	@IsNumber()
+	@ApiProperty({ example: 1, required: true })
+	course_section_id: number;
 }
 
 export class UpdateSurveyDto extends BaseDto {
@@ -98,6 +102,11 @@ export class UpdateSurveyDto extends BaseDto {
 	@IsNumber()
 	@ApiProperty({ example: 1, required: false })
 	survey_number?: number;
+
+	@IsOptional()
+	@IsNumber()
+	@ApiProperty({ example: 1, required: false })
+	course_section_id?: number;
 }
 
 export class FilterSurveyDto extends BaseDto {
@@ -140,4 +149,8 @@ export class FilterSurveyDto extends BaseDto {
 	@IsOptional()
 	@ApiProperty({ example: 1, required: false })
 	survey_number?: number;
+
+	@IsOptional()
+	@ApiProperty({ example: 1, required: false })
+	course_section_id?: number;
 }

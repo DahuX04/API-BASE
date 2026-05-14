@@ -1,42 +1,19 @@
-import simpleDS from '../typeorm.config';
-import * as dotenv from 'dotenv';
+import { runTenantSeed } from '../seed-runner';
 
-dotenv.config();
-
-async function run() {
-	const tenant = process.argv[2];
-
-	if (!tenant) {
-		console.error('Debe indicar el schema: npm run seed:tenant upc');
-		process.exit(1);
-	}
-
-	const tenantDataSource = simpleDS;
-	await tenantDataSource.initialize();
-
-	console.log(`🌱 Setting schema: ${tenant}`);
-	await tenantDataSource.query(`SET search_path TO "${tenant}"`);
-
-	console.log(`🌱 Seeding core module: ${tenant}`);
-	
-	// Insert parameters
+runTenantSeed('core module', async (tenantDataSource) => {
 	await tenantDataSource.query(`
-		INSERT INTO parameters (code, name, description, value, is_active, created_at, updated_at)
+		INSERT INTO "core"."parameters" (code, name, description, value)
+		SELECT v.code, v.name, v.description, v.value
+		FROM (
 			VALUES
-			('PARAMETER_ACADEMIC_START_DATE', 'Fecha Inicio Ciclo Académico', 'Fecha cuando inicia el período académico', '{"month": 9, "day": 15}'::jsonb, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PARAMETER_ACADEMIC_END_DATE', 'Fecha Fin Ciclo Académico', 'Fecha cuando finaliza el período académico', '{"month": 6, "day": 30}'::jsonb, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PARAMETER_MIN_PASSING_GRADE', 'Calificación Mínima Aprobatoria', 'Nota mínima requerida para aprobar un curso', '{"value": 10.5, "scale": 20}'::jsonb, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PARAMETER_MAX_RETAKES', 'Máximo de Reclamos', 'Número máximo de veces que se puede reclamar una nota', '{"value": 2}'::jsonb, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PARAMETER_INSTITUTIONAL_NAME', 'Nombre Institución', 'Nombre oficial de la institución', '{"name": "Universidad Peruana de Ciencias Aplicadas"}'::jsonb, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PARAMETER_INSTITUTIONAL_ACRONYM', 'Acrónimo Institución', 'Acrónimo oficial de la institución', '{"acronym": "UPC"}'::jsonb, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PARAMETER_SEMESTER_DURATION_WEEKS', 'Duración Semestral', 'Número de semanas que dura cada semestre', '{"weeks": 18}'::jsonb, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('PARAMETER_ACCREDITATION_CYCLE_YEARS', 'Ciclo de Acreditación', 'Años entre ciclos de acreditación institucional', '{"years": 7}'::jsonb, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-			ON CONFLICT (code) DO NOTHING;
+				('PARAMETER_ACADEMIC_START_DATE', 'Fecha de inicio academico', 'Fecha referencial de inicio del periodo academico', '{"month":3,"day":18}'::jsonb),
+				('PARAMETER_ACADEMIC_END_DATE', 'Fecha de cierre academico', 'Fecha referencial de cierre del periodo academico', '{"month":7,"day":20}'::jsonb),
+				('PARAMETER_MIN_PASSING_GRADE', 'Nota minima aprobatoria', 'Nota minima requerida para aprobar una evaluacion', '{"value":13,"scale":20}'::jsonb),
+				('PARAMETER_INSTITUTIONAL_NAME', 'Nombre institucional', 'Nombre oficial de la institucion', '{"name":"Universidad Peruana de Ciencias Aplicadas"}'::jsonb),
+				('PARAMETER_INSTITUTIONAL_ACRONYM', 'Acronimo institucional', 'Acronimo oficial de la institucion', '{"acronym":"UPC"}'::jsonb)
+		) AS v(code, name, description, value)
+		WHERE NOT EXISTS (
+			SELECT 1 FROM "core"."parameters" p WHERE p.code = v.code
+		);
 	`);
-
-	await tenantDataSource.destroy();
-
-	console.log('✅ Core seed completado.');
-}
-
-run().catch(console.error);
+});

@@ -19,10 +19,6 @@ export class CreatePlanActionDto extends BaseDto {
 	@IsNumber()
 	@ApiProperty({ example: 1, required: true })
 	finding_action_id: number;
-
-	@IsOptional()
-	@ApiProperty({ example: { key: 'evidences_value' }, required: false })
-	evidences?: any;
 }
 
 export class UpdatePlanActionDto extends BaseDto {
@@ -44,10 +40,6 @@ export class UpdatePlanActionDto extends BaseDto {
 	@IsNumber()
 	@ApiProperty({ example: 1, required: false })
 	finding_action_id?: number;
-
-	@IsOptional()
-	@ApiProperty({ example: { key: 'evidences_value' }, required: false })
-	evidences?: any;
 }
 
 export class FilterPlanActionDto extends BaseDto {
@@ -66,8 +58,4 @@ export class FilterPlanActionDto extends BaseDto {
 	@IsOptional()
 	@ApiProperty({ example: 1, required: false })
 	finding_action_id?: number;
-
-	@IsOptional()
-	@ApiProperty({ example: { key: 'evidences_value' }, required: false })
-	evidences?: any;
 }

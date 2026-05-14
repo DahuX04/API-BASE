@@ -42,6 +42,14 @@ export class CreateFindingDto extends BaseDto {
 	@IsNumber()
 	@ApiProperty({ example: 1, required: true })
 	campus_id: number;
+
+	@IsBoolean()
+	@ApiProperty({ example: true, required: true })
+	is_automatic: boolean;
+
+	@IsNumber()
+	@ApiProperty({ example: 1, required: true })
+	finding_status_type_id: number;
 }
 
 export class UpdateFindingDto extends BaseDto {
@@ -89,6 +97,16 @@ export class UpdateFindingDto extends BaseDto {
 	@IsNumber()
 	@ApiProperty({ example: 1, required: false })
 	campus_id?: number;
+
+	@IsOptional()
+	@IsBoolean()
+	@ApiProperty({ example: true, required: false })
+	is_automatic?: boolean;
+
+	@IsOptional()
+	@IsNumber()
+	@ApiProperty({ example: 1, required: false })
+	finding_status_type_id?: number;
 }
 
 export class FilterFindingDto extends BaseDto {
@@ -127,4 +145,12 @@ export class FilterFindingDto extends BaseDto {
 	@IsOptional()
 	@ApiProperty({ example: 1, required: false })
 	campus_id?: number;
+
+	@IsOptional()
+	@ApiProperty({ example: true, required: false })
+	is_automatic?: boolean;
+
+	@IsOptional()
+	@ApiProperty({ example: 1, required: false })
+	finding_status_type_id?: number;
 }

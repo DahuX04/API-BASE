@@ -3,6 +3,7 @@ import { BaseEntity } from 'src/commons/base.entity';
 import { TextMediumColumn, IntegerFKIDColumn, IntegerColumn } from 'src/commons/configs/db.configs';
 import { AcademicPeriodEntity } from 'src/modules/academic/academic-periods/model/academic-periods.entity';
 import { CampusEntity } from 'src/modules/organization/campuses/model/campuses.entity';
+import { CourseSectionEntity } from 'src/modules/academic/course-sections/model/course-sections.entity';
 import { ProgramEntity } from 'src/modules/academic/programs/model/programs.entity';
 import { StudentEntity } from 'src/modules/academic/students/model/students.entity';
 
@@ -34,6 +35,9 @@ export class SurveyEntity extends BaseEntity {
 	@IntegerColumn({ nullable: true })
 	survey_number: number;
 
+	@IntegerFKIDColumn({ nullable: false })
+	course_section_id: number;
+
 	// %% RELACIONES
 
 	@ManyToOne(() => StudentEntity)
@@ -51,4 +55,8 @@ export class SurveyEntity extends BaseEntity {
 	@ManyToOne(() => ProgramEntity)
 	@JoinColumn({ name: 'program_id' })
 	program: ProgramEntity;
+
+	@ManyToOne(() => CourseSectionEntity)
+	@JoinColumn({ name: 'course_section_id' })
+	course_section: CourseSectionEntity;
 }

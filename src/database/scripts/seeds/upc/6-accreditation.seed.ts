@@ -1,73 +1,123 @@
-import simpleDS from '../typeorm.config';
-import * as dotenv from 'dotenv';
+import { runTenantSeed } from '../seed-runner';
 
-dotenv.config();
-
-async function run() {
-	const tenant = process.argv[2];
-
-	if (!tenant) {
-		console.error('Debe indicar el schema: npm run seed:tenant upc');
-		process.exit(1);
-	}
-
-	const tenantDataSource = simpleDS;
-	await tenantDataSource.initialize();
-
-	console.log(`🌱 Setting schema: ${tenant}`);
-	await tenantDataSource.query(`SET search_path TO "${tenant}"`);
-
-	console.log(`🌱 Seeding accreditation module: ${tenant}`);
-	
-	// Insert accreditors
+runTenantSeed('accreditation module', async (tenantDataSource) => {
 	await tenantDataSource.query(`
-		INSERT INTO accreditors (code, name, country, website, is_active, created_at, updated_at)
+		INSERT INTO "accreditation"."accreditors" (code, name)
+		SELECT v.code, v.name
+		FROM (
 			VALUES
-			('ACC_SINEACE', 'SINEACE - Sistema Nacional de Evaluación, Acreditación y Certificación de Calidad Educativa', 'Perú', 'https://www.sineace.gob.pe', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('ACC_ICACIT', 'ICACIT - Acreditadora de Programas de Ingeniería', 'Perú', 'https://www.icacit.org.pe', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('ACC_AACBS', 'AACBS - Association to Advance Collegiate Schools of Business', 'USA', 'https://www.aacbs.org', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-			ON CONFLICT (code) DO NOTHING;
+				('ACC_SINEACE', 'Sistema Nacional de Evaluacion, Acreditacion y Certificacion de la Calidad Educativa'),
+				('ACC_ICACIT', 'Instituto de Calidad y Acreditacion de Programas de Computacion, Ingenieria y Tecnologia')
+		) AS v(code, name)
+		WHERE NOT EXISTS (
+			SELECT 1 FROM "accreditation"."accreditors" a WHERE a.code = v.code
+		);
 	`);
 
-	// Insert outcomes (acreditation learning outcomes)
 	await tenantDataSource.query(`
-		INSERT INTO outcomes (code, name, description, is_active, created_at, updated_at)
+		INSERT INTO "accreditation"."commissions" (accreditor_id, code, name)
+		SELECT accreditor.id, v.code, v.name
+		FROM "accreditation"."accreditors" accreditor
+		JOIN (
 			VALUES
-			('OUT_001', 'Competencia en Pensamiento Crítico', 'El graduado demuestra habilidad para analizar y resolver problemas complejos', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('OUT_002', 'Competencia en Comunicación', 'El graduado se comunica efectivamente en forma oral y escrita', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('OUT_003', 'Competencia en Trabajo en Equipo', 'El graduado colabora efectivamente en equipos multidisciplinarios', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('OUT_004', 'Competencia Técnica Disciplinaria', 'El graduado domina conocimientos y habilidades de su disciplina', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('OUT_005', 'Competencia Ética Profesional', 'El graduado actúa con integridad y responsabilidad ética', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('OUT_006', 'Competencia en Innovación', 'El graduado contribuye a innovación y mejora continua', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-			ON CONFLICT (code) DO NOTHING;
+				('ACC_ICACIT', 'COM_SOFT_2026', 'Comision de acreditacion de Ingenieria de Software'),
+				('ACC_SINEACE', 'COM_ADMIN_2026', 'Comision de acreditacion de Administracion')
+		) AS v(accreditor_code, code, name)
+			ON accreditor.code = v.accreditor_code
+		WHERE NOT EXISTS (
+			SELECT 1 FROM "accreditation"."commissions" c WHERE c.code = v.code
+		);
 	`);
 
-	// Insert commissions (accreditation evaluation teams)
 	await tenantDataSource.query(`
-		INSERT INTO commissions (code, name, description, status, start_date, end_date, is_active, created_at, updated_at)
+		INSERT INTO "accreditation"."program_commissions" (
+			commission_id,
+			program_id,
+			academic_period_id,
+			commission_type_id
+		)
+		SELECT commission.id, program.id, period.id, commission_type.id
+		FROM (
 			VALUES
-			('COM_2024_CS', 'Comisión Evaluadora Ingeniería de Software', 'Comisión para evaluación de programa de Ingeniería de Software', 'SCHEDULED', '2024-10-01', '2024-12-31', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('COM_2024_BA', 'Comisión Evaluadora Administración', 'Comisión para evaluación de programa de Administración', 'IN_PROCESS', '2024-11-15', '2025-02-15', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('COM_2025_CE', 'Comisión Evaluadora Ingeniería Civil', 'Comisión para evaluación de programa de Ingeniería Civil', 'SCHEDULED', '2025-03-01', '2025-06-30', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-			ON CONFLICT (code) DO NOTHING;
+				('COM_SOFT_2026', 'PROG_SOFT', 'AP_2026_1', 'TG301-T001'),
+				('COM_ADMIN_2026', 'PROG_ADMIN', 'AP_2026_1', 'TG301-T001')
+		) AS v(commission_code, program_code, academic_period_code, commission_type_code)
+		JOIN "accreditation"."commissions" commission
+			ON commission.code = v.commission_code
+		JOIN "academic"."programs" program
+			ON program.code = v.program_code
+		JOIN "academic"."academic_periods" period
+			ON period.code = v.academic_period_code
+		JOIN "core"."types" commission_type
+			ON commission_type.code = v.commission_type_code
+		WHERE NOT EXISTS (
+			SELECT 1
+			FROM "accreditation"."program_commissions" pc
+			WHERE pc.commission_id = commission.id
+				AND pc.program_id = program.id
+				AND pc.academic_period_id = period.id
+		);
 	`);
 
-	// Insert program commissions (link programs to commissions)
 	await tenantDataSource.query(`
-		INSERT INTO program_commissions (program_id, commission_id, is_active, created_at, updated_at)
-			SELECT p.id, c.id, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
-			FROM programs p
-			JOIN commissions c ON (
-				(p.code = 'PROG_CS_UG' AND c.code = 'COM_2024_CS') OR
-				(p.code = 'PROG_BA_UG' AND c.code = 'COM_2024_BA') OR
-				(p.code = 'PROG_CE_UG' AND c.code = 'COM_2025_CE')
-			)
-			ON CONFLICT DO NOTHING;
+		INSERT INTO "accreditation"."outcomes" (
+			program_commission_id,
+			outcome_code,
+			outcome_name,
+			outcome_description
+		)
+		SELECT pc.id, v.outcome_code, v.outcome_name, v.outcome_description
+		FROM (
+			VALUES
+				('COM_SOFT_2026', 'PROG_SOFT', 'OUT_SOFT_01', 'Pensamiento critico', 'Analiza problemas complejos de ingenieria de software con criterios tecnicos y de negocio.'),
+				('COM_SOFT_2026', 'PROG_SOFT', 'OUT_SOFT_02', 'Comunicacion efectiva', 'Comunica decisiones tecnicas a audiencias especializadas y no especializadas.'),
+				('COM_SOFT_2026', 'PROG_SOFT', 'OUT_SOFT_03', 'Trabajo en equipo', 'Colabora en equipos multidisciplinarios durante el ciclo de vida del software.'),
+				('COM_SOFT_2026', 'PROG_SOFT', 'OUT_SOFT_04', 'Solucion tecnica', 'Disena e implementa soluciones de software sostenibles y verificables.'),
+				('COM_ADMIN_2026', 'PROG_ADMIN', 'OUT_ADMIN_01', 'Gestion organizacional', 'Propone acciones de gestion basadas en informacion confiable.')
+		) AS v(commission_code, program_code, outcome_code, outcome_name, outcome_description)
+		JOIN "accreditation"."commissions" commission
+			ON commission.code = v.commission_code
+		JOIN "academic"."programs" program
+			ON program.code = v.program_code
+		JOIN "accreditation"."program_commissions" pc
+			ON pc.commission_id = commission.id AND pc.program_id = program.id
+		WHERE NOT EXISTS (
+			SELECT 1 FROM "accreditation"."outcomes" outcome WHERE outcome.outcome_code = v.outcome_code
+		);
 	`);
 
-	await tenantDataSource.destroy();
-
-	console.log('✅ Accreditation seed completado.');
-}
-
-run().catch(console.error);
+	await tenantDataSource.query(`
+		INSERT INTO "academic"."course_outcome_mappings" (
+			outcome_id,
+			study_plan_course_id,
+			outcome_type_id
+		)
+		SELECT outcome.id, spc.id, outcome_type.id
+		FROM (
+			VALUES
+				('OUT_SOFT_01', 'SP_SOFT26', 'AP_2026_1', 'Fundamentos de Programacion', 'TG302-T001'),
+				('OUT_SOFT_02', 'SP_SOFT26', 'AP_2026_1', 'Ingenieria de Requisitos', 'TG302-T001'),
+				('OUT_SOFT_03', 'SP_SOFT26', 'AP_2026_2', 'Proyecto Integrador de Software', 'TG302-T001'),
+				('OUT_SOFT_04', 'SP_SOFT26', 'AP_2026_2', 'Proyecto Integrador de Software', 'TG302-T001')
+		) AS v(outcome_code, study_plan_code, academic_period_code, course_name, outcome_type_code)
+		JOIN "accreditation"."outcomes" outcome
+			ON outcome.outcome_code = v.outcome_code
+		JOIN "academic"."study_plans" sp
+			ON sp.code = v.study_plan_code
+		JOIN "academic"."study_plan_academic_periods" spap
+			ON spap.study_plan_id = sp.id
+		JOIN "academic"."academic_periods" ap
+			ON ap.id = spap.academic_period_id AND ap.code = v.academic_period_code
+		JOIN "academic"."courses" course
+			ON course.name = v.course_name
+		JOIN "academic"."study_plan_courses" spc
+			ON spc.study_plan_academic_period_id = spap.id AND spc.course_id = course.id
+		JOIN "core"."types" outcome_type
+			ON outcome_type.code = v.outcome_type_code
+		WHERE NOT EXISTS (
+			SELECT 1
+			FROM "academic"."course_outcome_mappings" com
+			WHERE com.outcome_id = outcome.id AND com.study_plan_course_id = spc.id
+		);
+	`);
+});

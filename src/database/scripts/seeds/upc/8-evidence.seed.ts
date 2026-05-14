@@ -1,83 +1,217 @@
-import simpleDS from '../typeorm.config';
-import * as dotenv from 'dotenv';
+import { runTenantSeed } from '../seed-runner';
 
-dotenv.config();
-
-async function run() {
-	const tenant = process.argv[2];
-
-	if (!tenant) {
-		console.error('Debe indicar el schema: npm run seed:tenant upc');
-		process.exit(1);
-	}
-
-	const tenantDataSource = simpleDS;
-	await tenantDataSource.initialize();
-
-	console.log(`🌱 Setting schema: ${tenant}`);
-	await tenantDataSource.query(`SET search_path TO "${tenant}"`);
-
-	console.log(`🌱 Seeding evidence module: ${tenant}`);
-	
-	// Insert surveys
+runTenantSeed('evidence module', async (tenantDataSource) => {
 	await tenantDataSource.query(`
-		INSERT INTO surveys (code, name, description, survey_type, status, start_date, end_date, is_active, created_at, updated_at)
+		INSERT INTO "evidence"."instruments" (
+			constituent_type_id,
+			code,
+			name,
+			description,
+			is_for_accreditation
+		)
+		SELECT constituent_type.id, v.code, v.name, v.description, v.is_for_accreditation
+		FROM "core"."types" constituent_type
+		JOIN (
 			VALUES
-			('SURV_CS_SATISFACTION_2024', 'Encuesta Satisfacción Estudiantes CS 2024', 'Encuesta de satisfacción para estudiantes de Ingeniería de Software', 'STUDENT_SATISFACTION', 'ACTIVE', '2024-11-01', '2024-11-30', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('SURV_ALUMNI_OUTCOME_2024', 'Encuesta Egresados Resultados Educativos', 'Evaluación de resultados educativos con egresados', 'ALUMNI_OUTCOME', 'ACTIVE', '2024-10-01', '2024-12-31', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('SURV_EMPLOYER_2024', 'Encuesta Empleadores 2024', 'Evaluación de competencias desde perspectiva del empleador', 'EMPLOYER_FEEDBACK', 'PLANNING', '2025-01-01', '2025-03-31', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-			ON CONFLICT (code) DO NOTHING;
+				('TG501-T001', 'INST_FP_EXAM', 'Examen de Fundamentos de Programacion', 'Instrumento para medir solucion algoritmica basica', true),
+				('TG501-T002', 'INST_CAPSTONE', 'Proyecto integrador de software', 'Instrumento para medir competencias integradas del programa', true),
+				('TG501-T003', 'INST_SURVEY_STUDENT', 'Encuesta de percepcion estudiantil', 'Instrumento de percepcion para resultados del programa', false)
+		) AS v(constituent_type_code, code, name, description, is_for_accreditation)
+			ON constituent_type.code = v.constituent_type_code
+		WHERE NOT EXISTS (
+			SELECT 1 FROM "evidence"."instruments" instrument WHERE instrument.code = v.code
+		);
 	`);
 
-	// Insert instruments (evaluation tools)
 	await tenantDataSource.query(`
-		INSERT INTO instruments (code, name, description, instrument_type, is_active, created_at, updated_at)
+		INSERT INTO "evidence"."ifcs" (study_plan_course_id, information)
+		SELECT spc.id, v.information
+		FROM (
 			VALUES
-			('INST_EXAM_CS101', 'Examen Programación Básica', 'Examen escrito para evaluar fundamentos de programación', 'TEST', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('INST_PORTFOLIO', 'Portafolio de Proyectos', 'Colección de proyectos realizados por el estudiante', 'PORTFOLIO', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('INST_CAPSTONE', 'Proyecto Capstone', 'Proyecto integrador final de carrera', 'PROJECT', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('INST_FOCUS_GROUP', 'Grupo Focal Estudiantes', 'Entrevista grupal para recolectar percepciones', 'INTERVIEW', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('INST_INTERNSHIP_EVAL', 'Evaluación Prácticas Profesionales', 'Evaluación del desempeño en prácticas profesionales', 'PERFORMANCE', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-			ON CONFLICT (code) DO NOTHING;
+				('SP_SOFT26', 'AP_2026_1', 'Fundamentos de Programacion', 'IFC para medir pensamiento critico y solucion tecnica en Fundamentos de Programacion.'),
+				('SP_SOFT26', 'AP_2026_2', 'Proyecto Integrador de Software', 'IFC para medir colaboracion y solucion tecnica en Proyecto Integrador.')
+		) AS v(study_plan_code, academic_period_code, course_name, information)
+		JOIN "academic"."study_plans" sp
+			ON sp.code = v.study_plan_code
+		JOIN "academic"."study_plan_academic_periods" spap
+			ON spap.study_plan_id = sp.id
+		JOIN "academic"."academic_periods" ap
+			ON ap.id = spap.academic_period_id AND ap.code = v.academic_period_code
+		JOIN "academic"."courses" course
+			ON course.name = v.course_name
+		JOIN "academic"."study_plan_courses" spc
+			ON spc.study_plan_academic_period_id = spap.id AND spc.course_id = course.id
+		WHERE NOT EXISTS (
+			SELECT 1
+			FROM "evidence"."ifcs" ifc
+			WHERE ifc.study_plan_course_id = spc.id AND ifc.information = v.information
+		);
 	`);
 
-	// Insert IFCs (learning outcomes indicators)
 	await tenantDataSource.query(`
-		INSERT INTO ifcs (code, name, description, outcome_code, measurement_method, threshold, is_active, created_at, updated_at)
+		INSERT INTO "evidence"."surveys" (
+			survey_type_id,
+			survey_status_type_id,
+			student_id,
+			academic_period_id,
+			campus_id,
+			program_id,
+			information,
+			survey_number
+		)
+		SELECT survey_type.id, survey_status.id, student.id, period.id, campus.id, program.id, v.information, v.survey_number
+		FROM (
 			VALUES
-			('IFC_CRIT_THINK_001', 'Análisis de Problemas Complejos', 'El estudiante puede analizar problemas técnicos complejos', 'OUT_001', 'RUBRIC', 0.7, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('IFC_COMMUNICATION_001', 'Comunicación Escrita', 'El estudiante produce documentación técnica clara', 'OUT_002', 'RUBRIC', 0.75, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('IFC_TEAMWORK_001', 'Colaboración en Equipos', 'El estudiante colabora efectivamente en proyectos', 'OUT_003', 'SURVEY', 0.8, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('IFC_TECHNICAL_001', 'Competencia Técnica', 'El estudiante domina tecnologías de la disciplina', 'OUT_004', 'EXAM', 0.65, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('IFC_ETHICS_001', 'Responsabilidad Ética', 'El estudiante actúa con integridad profesional', 'OUT_005', 'INTERVIEW', 0.8, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('IFC_INNOVATION_001', 'Innovación Tecnológica', 'El estudiante propone soluciones innovadoras', 'OUT_006', 'PROJECT', 0.6, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-			ON CONFLICT (code) DO NOTHING;
+				('TG601-T001', 'TG602-T001', 'student.luis.ramirez@upc.edu.pe', 'AP_2026_1', 'CAMPUS_MON', 'PROG_SOFT', 'Encuesta de satisfaccion del periodo 2026-1', 20260101),
+				('TG601-T001', 'TG602-T001', 'student.sofia.torres@upc.edu.pe', 'AP_2026_1', 'CAMPUS_MON', 'PROG_SOFT', 'Encuesta de satisfaccion del periodo 2026-1', 20260102)
+		) AS v(survey_type_code, survey_status_code, student_email, academic_period_code, campus_code, program_code, information, survey_number)
+		JOIN "core"."types" survey_type
+			ON survey_type.code = v.survey_type_code
+		JOIN "core"."types" survey_status
+			ON survey_status.code = v.survey_status_code
+		JOIN "organization"."users" user_entity
+			ON user_entity.email = v.student_email
+		JOIN "academic"."students" student
+			ON student.user_id = user_entity.id
+		JOIN "academic"."academic_periods" period
+			ON period.code = v.academic_period_code
+		JOIN "organization"."campuses" campus
+			ON campus.code = v.campus_code
+		JOIN "academic"."programs" program
+			ON program.code = v.program_code
+		WHERE NOT EXISTS (
+			SELECT 1
+			FROM "evidence"."surveys" survey
+			WHERE survey.student_id = student.id AND survey.survey_number = v.survey_number
+		);
 	`);
 
-	// Insert evaluations (evidence collection records)
 	await tenantDataSource.query(`
-		INSERT INTO evaluations (code, name, description, evaluation_date, evaluator, data_source, is_active, created_at, updated_at)
+		INSERT INTO "evidence"."student_course_outcome_grades" (
+			student_section_enrollment_id,
+			outcome_id,
+			grade
+		)
+		SELECT sse.id, outcome.id, v.grade
+		FROM (
 			VALUES
-			('EVAL_CS101_2024', 'Evaluación Programación Básica 2024', 'Evaluación de aprendizaje en CS101', '2024-11-15', 'Prof. Juan Pérez', 'EXAM', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('EVAL_SATISFACTION_2024', 'Evaluación Satisfacción 2024', 'Resultados de encuesta de satisfacción estudiantil', '2024-11-30', 'Oficina de Calidad', 'SURVEY', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('EVAL_CAPSTONE_2024', 'Evaluación Proyectos Capstone 2024', 'Evaluación de proyectos integradores finales', '2024-12-10', 'Comisión Capstone', 'PROJECT', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
-			('EVAL_ALUMNI_2024', 'Evaluación Egresados 2024', 'Seguimiento de competencias en egresados', '2024-11-01', 'Oficina de Egresados', 'INTERVIEW', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
-			ON CONFLICT (code) DO NOTHING;
+				('student.luis.ramirez@upc.edu.pe', 'SOFT-FP-2026-1-A', 'OUT_SOFT_01', 16.500000),
+				('student.luis.ramirez@upc.edu.pe', 'SOFT-FP-2026-1-A', 'OUT_SOFT_04', 17.000000),
+				('student.sofia.torres@upc.edu.pe', 'SOFT-FP-2026-1-A', 'OUT_SOFT_01', 15.000000),
+				('student.sofia.torres@upc.edu.pe', 'SOFT-FP-2026-1-A', 'OUT_SOFT_04', 16.000000)
+		) AS v(student_email, section_code, outcome_code, grade)
+		JOIN "organization"."users" user_entity
+			ON user_entity.email = v.student_email
+		JOIN "academic"."students" student
+			ON student.user_id = user_entity.id
+		JOIN "academic"."enrolled_students" enrolled_student
+			ON enrolled_student.student_id = student.id
+		JOIN "academic"."course_sections" course_section
+			ON course_section.section_code = v.section_code
+		JOIN "academic"."student_section_enrollments" sse
+			ON sse.enrolled_student_id = enrolled_student.id AND sse.course_section_id = course_section.id
+		JOIN "accreditation"."outcomes" outcome
+			ON outcome.outcome_code = v.outcome_code
+		WHERE NOT EXISTS (
+			SELECT 1
+			FROM "evidence"."student_course_outcome_grades" scog
+			WHERE scog.student_section_enrollment_id = sse.id AND scog.outcome_id = outcome.id
+		);
 	`);
 
-	// Insert student course outcome grades
 	await tenantDataSource.query(`
-		INSERT INTO student_course_outcome_grades (student_id, course_id, outcome_code, grade, evidence_type, is_active, created_at, updated_at)
-			SELECT s.id, c.id, 'OUT_001', (random() * 5 + 13)::numeric(4,2), 'EXAM', true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
-			FROM students s
-			JOIN courses c ON c.code IN ('COURSE_CS101', 'COURSE_CS201')
-			LIMIT 10
-			ON CONFLICT DO NOTHING;
+		INSERT INTO "evidence"."evaluations" (
+			project_student_id,
+			project_evaluator_id,
+			qualification_status_type_id,
+			observation,
+			register_at
+		)
+		SELECT project_student.id, project_evaluator.id, qualification_status.id, v.observation, v.register_at::timestamptz
+		FROM (
+			VALUES
+				('PROJ_SOFT_FP_2026', 'student.luis.ramirez@upc.edu.pe', 'prof.juan.perez@upc.edu.pe', 'TG404-T002', 'Proyecto revisado con desempeno esperado alto.', '2026-06-10 10:00:00'),
+				('PROJ_SOFT_FP_2026', 'student.sofia.torres@upc.edu.pe', 'prof.juan.perez@upc.edu.pe', 'TG404-T002', 'Proyecto revisado con desempeno esperado.', '2026-06-10 11:00:00')
+		) AS v(project_code, student_email, professor_email, qualification_status_code, observation, register_at)
+		JOIN "evaluation"."projects" project
+			ON project.code = v.project_code
+		JOIN "organization"."users" user_entity
+			ON user_entity.email = v.student_email
+		JOIN "academic"."students" student
+			ON student.user_id = user_entity.id
+		JOIN "academic"."enrolled_students" enrolled_student
+			ON enrolled_student.student_id = student.id
+		JOIN "academic"."student_section_enrollments" sse
+			ON sse.enrolled_student_id = enrolled_student.id
+		JOIN "evaluation"."project_students" project_student
+			ON project_student.project_id = project.id AND project_student.student_section_enrollment_id = sse.id
+		JOIN "organization"."staff" staff
+			ON staff.staff_email = v.professor_email
+		JOIN "academic"."professors" professor
+			ON professor.staff_id = staff.id
+		JOIN "evaluation"."project_evaluators" project_evaluator
+			ON project_evaluator.project_id = project.id AND project_evaluator.professor_id = professor.id
+		JOIN "core"."types" qualification_status
+			ON qualification_status.code = v.qualification_status_code
+		WHERE NOT EXISTS (
+			SELECT 1
+			FROM "evidence"."evaluations" evaluation
+			WHERE evaluation.project_student_id = project_student.id
+				AND evaluation.project_evaluator_id = project_evaluator.id
+		);
 	`);
 
-	await tenantDataSource.destroy();
-
-	console.log('✅ Evidence seed completado.');
-}
-
-run().catch(console.error);
+	await tenantDataSource.query(`
+		INSERT INTO "evaluation"."rubric_scores" (
+			evaluation_id,
+			rubric_outcome_criteria_id,
+			rubric_question_criteria_id,
+			score,
+			commentaries
+		)
+		SELECT evaluation.id, roc.id, rqc.id, v.score, v.commentaries
+		FROM (
+			VALUES
+				('PROJ_SOFT_FP_2026', 'student.luis.ramirez@upc.edu.pe', 'prof.juan.perez@upc.edu.pe', 'OUT_SOFT_01', 'Analiza el problema y define una solucion algoritmica coherente.', 'SCALE_FP_EXCELLENT', 18.000000, 'Analisis claro y completo.'),
+				('PROJ_SOFT_FP_2026', 'student.luis.ramirez@upc.edu.pe', 'prof.juan.perez@upc.edu.pe', 'OUT_SOFT_04', 'Implementa la solucion con estructuras de control adecuadas.', 'SCALE_FP_EXPECTED', 16.000000, 'Implementacion correcta con oportunidades de mejora menores.'),
+				('PROJ_SOFT_FP_2026', 'student.sofia.torres@upc.edu.pe', 'prof.juan.perez@upc.edu.pe', 'OUT_SOFT_01', 'Analiza el problema y define una solucion algoritmica coherente.', 'SCALE_FP_EXPECTED', 15.000000, 'Cubre los elementos principales del problema.')
+		) AS v(project_code, student_email, professor_email, outcome_code, question, scale_code, score, commentaries)
+		JOIN "evaluation"."projects" project
+			ON project.code = v.project_code
+		JOIN "organization"."users" user_entity
+			ON user_entity.email = v.student_email
+		JOIN "academic"."students" student
+			ON student.user_id = user_entity.id
+		JOIN "academic"."enrolled_students" enrolled_student
+			ON enrolled_student.student_id = student.id
+		JOIN "academic"."student_section_enrollments" sse
+			ON sse.enrolled_student_id = enrolled_student.id
+		JOIN "evaluation"."project_students" project_student
+			ON project_student.project_id = project.id AND project_student.student_section_enrollment_id = sse.id
+		JOIN "organization"."staff" staff
+			ON staff.staff_email = v.professor_email
+		JOIN "academic"."professors" professor
+			ON professor.staff_id = staff.id
+		JOIN "evaluation"."project_evaluators" project_evaluator
+			ON project_evaluator.project_id = project.id AND project_evaluator.professor_id = professor.id
+		JOIN "evidence"."evaluations" evaluation
+			ON evaluation.project_student_id = project_student.id AND evaluation.project_evaluator_id = project_evaluator.id
+		JOIN "accreditation"."outcomes" outcome
+			ON outcome.outcome_code = v.outcome_code
+		JOIN "evaluation"."rubric_questions" rq
+			ON rq.outcome_id = outcome.id AND rq.question = v.question
+		JOIN "evaluation"."rubric_outcome_criterias" roc
+			ON roc.outcome_id = outcome.id AND roc.rubric_id = rq.rubric_id
+		JOIN "evaluation"."rubric_scales" scale
+			ON scale.code = v.scale_code
+		JOIN "evaluation"."rubric_question_criterias" rqc
+			ON rqc.rubric_question_id = rq.id AND rqc.rubric_scale_id = scale.id
+		WHERE NOT EXISTS (
+			SELECT 1
+			FROM "evaluation"."rubric_scores" rs
+			WHERE rs.evaluation_id = evaluation.id
+				AND rs.rubric_outcome_criteria_id = roc.id
+				AND rs.rubric_question_criteria_id = rqc.id
+		);
+	`);
+});
