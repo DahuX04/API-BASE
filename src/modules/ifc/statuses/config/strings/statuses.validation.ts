@@ -1,11 +1,11 @@
 export const statusesValidationStrings = {
 	error: {
-		statusExists: 'El estado ya existe para este IFC en esta fecha',
-		notFound: 'El estado no existe',
+		statusExists: 'error.status.exists',
+		notFound: 'error.notFound',
 	},
 	result: {
-		createFailed: 'No se pudo registrar el estado',
-		updateFailed: 'No se pudo actualizar el estado',
-		deleteFailed: 'No se pudo eliminar el estado',
+		createFailed: 'error.created.failed',
+		updateFailed: 'error.update.failed',
+		deleteFailed: 'error.delete.failed',
 	},
 };

@@ -1,11 +1,11 @@
 export const actionsValidationStrings = {
 	error: {
-		actionExists: 'La acción ya existe',
-		notFound: 'La acción no existe',
+		actionExists: 'error.action.exists',
+		notFound: 'error.notFound',
 	},
 	result: {
-		createFailed: 'No se pudo registrar la acción',
-		updateFailed: 'No se pudo actualizar la acción',
-		deleteFailed: 'No se pudo eliminar la acción',
+		createFailed: 'error.created.failed',
+		updateFailed: 'error.update.failed',
+		deleteFailed: 'error.delete.failed',
 	},
 };

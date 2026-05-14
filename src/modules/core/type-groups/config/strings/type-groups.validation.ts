@@ -1,11 +1,11 @@
 export const typeGroupsValidationStrings = {
 	error: {
-		codeExists: 'El código ya existe',
-		notFound: 'El grupo de tipos no existe',
+		codeExists: 'error.code.exists',
+		notFound: 'error.notFound',
 	},
 	result: {
-		createFailed: 'No se pudo registrar el grupo de tipos',
-		updateFailed: 'No se pudo actualizar el grupo de tipos',
-		deleteFailed: 'No se pudo eliminar el grupo de tipos',
+		createFailed: 'error.created.failed',
+		updateFailed: 'error.update.failed',
+		deleteFailed: 'error.delete.failed',
 	},
 };

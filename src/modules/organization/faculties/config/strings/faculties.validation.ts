@@ -1,11 +1,11 @@
 export const facultiesValidationStrings = {
 	error: {
-		codeExists: 'El código ya existe',
-		notFound: 'La facultad no existe',
+		codeExists: 'error.code.exists',
+		notFound: 'error.notFound',
 	},
 	result: {
-		createFailed: 'No se pudo registrar la facultad',
-		updateFailed: 'No se pudo actualizar la facultad',
-		deleteFailed: 'No se pudo eliminar la facultad',
+		createFailed: 'error.created.failed',
+		updateFailed: 'error.update.failed',
+		deleteFailed: 'error.delete.failed',
 	},
 };

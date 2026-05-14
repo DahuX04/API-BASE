@@ -1,11 +1,11 @@
 export const professorsValidationStrings = {
 	error: {
-		staffExists: 'El personal ya se encuentra registrado como profesor',
-		notFound: 'El profesor no existe',
+		staffExists: 'error.staff.exists',
+		notFound: 'error.notFound',
 	},
 	result: {
-		createFailed: 'No se pudo registrar el profesor',
-		updateFailed: 'No se pudo actualizar el profesor',
-		deleteFailed: 'No se pudo eliminar el profesor',
+		createFailed: 'error.created.failed',
+		updateFailed: 'error.update.failed',
+		deleteFailed: 'error.delete.failed',
 	},
 };

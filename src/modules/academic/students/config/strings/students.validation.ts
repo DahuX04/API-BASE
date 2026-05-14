@@ -1,11 +1,11 @@
 export const studentsValidationStrings = {
 	error: {
-		studentExists: 'El usuario ya se encuentra registrado como estudiante',
-		notFound: 'El estudiante no existe',
+		studentExists: 'error.student.exists',
+		notFound: 'error.notFound',
 	},
 	result: {
-		createFailed: 'No se pudo registrar el estudiante',
-		updateFailed: 'No se pudo actualizar el estudiante',
-		deleteFailed: 'No se pudo eliminar el estudiante',
+		createFailed: 'error.created.failed',
+		updateFailed: 'error.update.failed',
+		deleteFailed: 'error.delete.failed',
 	},
 };

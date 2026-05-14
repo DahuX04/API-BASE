@@ -1,11 +1,11 @@
 export const courseOutcomeMappingsValidationStrings = {
 	error: {
-		mappingExists: 'El mapeo de outcome ya existe para este curso del plan',
-		notFound: 'El mapeo de outcome no existe',
+		mappingExists: 'error.mapping.exists',
+		notFound: 'error.notFound',
 	},
 	result: {
-		createFailed: 'No se pudo registrar el mapeo de outcome',
-		updateFailed: 'No se pudo actualizar el mapeo de outcome',
-		deleteFailed: 'No se pudo eliminar el mapeo de outcome',
+		createFailed: 'error.created.failed',
+		updateFailed: 'error.update.failed',
+		deleteFailed: 'error.delete.failed',
 	},
 };

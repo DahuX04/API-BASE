@@ -1,11 +1,11 @@
 export const outcomesValidationStrings = {
 	error: {
-		outcomeCodeExists: 'El código del outcome ya existe para esta comisión de programa',
-		notFound: 'El outcome no existe',
+		outcomeCodeExists: 'error.outcome.code.exists',
+		notFound: 'error.notFound',
 	},
 	result: {
-		createFailed: 'No se pudo registrar el outcome',
-		updateFailed: 'No se pudo actualizar el outcome',
-		deleteFailed: 'No se pudo eliminar el outcome',
+		createFailed: 'error.created.failed',
+		updateFailed: 'error.update.failed',
+		deleteFailed: 'error.delete.failed',
 	},
 };

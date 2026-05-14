@@ -1,11 +1,11 @@
 export const programsValidationStrings = {
 	error: {
-		codeExists: 'El código ya existe',
-		notFound: 'El programa no existe',
+		codeExists: 'error.code.exists',
+		notFound: 'error.notFound',
 	},
 	result: {
-		createFailed: 'No se pudo registrar el programa',
-		updateFailed: 'No se pudo actualizar el programa',
-		deleteFailed: 'No se pudo eliminar el programa',
+		createFailed: 'error.created.failed',
+		updateFailed: 'error.update.failed',
+		deleteFailed: 'error.delete.failed',
 	},
 };

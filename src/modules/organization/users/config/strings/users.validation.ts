@@ -1,13 +1,13 @@
 export const usersValidationStrings = {
 	error: {
-		documentCodeExists: 'El número de documento ya existe',
-		emailExists: 'El correo ya existe',
-		notFound: 'El usuario no existe',
-		invalidCredentials: 'Credenciales inválidas',
+		documentCodeExists: 'error.document.code.exists',
+		emailExists: 'error.email.exists',
+		notFound: 'error.notFound',
+		invalidCredentials: 'error.invalid.credentials',
 	},
 	result: {
-		createFailed: 'No se pudo registrar el usuario',
-		updateFailed: 'No se pudo actualizar el usuario',
-		deleteFailed: 'No se pudo eliminar el usuario',
+		createFailed: 'error.created.failed',
+		updateFailed: 'error.update.failed',
+		deleteFailed: 'error.delete.failed',
 	},
 };

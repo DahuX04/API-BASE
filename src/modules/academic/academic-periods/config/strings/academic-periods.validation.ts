@@ -1,12 +1,12 @@
 export const academicPeriodsValidationStrings = {
 	error: {
-		codeExists: 'El código ya existe',
-		invalidDateRange: 'La fecha de inicio no puede ser mayor a la fecha de fin',
-		notFound: 'El periodo académico no existe',
+		codeExists: 'error.code.exists',
+		invalidDateRange: 'error.invalid.date.range',
+		notFound: 'error.notFound',
 	},
 	result: {
-		createFailed: 'No se pudo registrar el periodo académico',
-		updateFailed: 'No se pudo actualizar el periodo académico',
-		deleteFailed: 'No se pudo eliminar el periodo académico',
+		createFailed: 'error.created.failed',
+		updateFailed: 'error.update.failed',
+		deleteFailed: 'error.delete.failed',
 	},
 };

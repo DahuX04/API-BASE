@@ -1,11 +1,11 @@
 export const findingsValidationStrings = {
 	error: {
-		findingExists: 'El hallazgo ya existe',
-		notFound: 'El hallazgo no existe',
+		findingExists: 'error.finding.exists',
+		notFound: 'error.notFound',
 	},
 	result: {
-		createFailed: 'No se pudo registrar el hallazgo',
-		updateFailed: 'No se pudo actualizar el hallazgo',
-		deleteFailed: 'No se pudo eliminar el hallazgo',
+		createFailed: 'error.created.failed',
+		updateFailed: 'error.update.failed',
+		deleteFailed: 'error.delete.failed',
 	},
 };

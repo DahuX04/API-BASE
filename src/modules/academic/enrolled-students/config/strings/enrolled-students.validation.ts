@@ -1,11 +1,11 @@
 export const enrolledStudentsValidationStrings = {
 	error: {
-		enrolledStudentExists: 'El estudiante ya está matriculado en este plan de estudio por periodo académico',
-		notFound: 'La matrícula del estudiante no existe',
+		enrolledStudentExists: 'error.enrolled.student.exists',
+		notFound: 'error.notFound',
 	},
 	result: {
-		createFailed: 'No se pudo registrar la matrícula del estudiante',
-		updateFailed: 'No se pudo actualizar la matrícula del estudiante',
-		deleteFailed: 'No se pudo eliminar la matrícula del estudiante',
+		createFailed: 'error.created.failed',
+		updateFailed: 'error.update.failed',
+		deleteFailed: 'error.delete.failed',
 	},
 };

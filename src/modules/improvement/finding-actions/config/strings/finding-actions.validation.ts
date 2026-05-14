@@ -1,11 +1,11 @@
 export const findingActionsValidationStrings = {
 	error: {
-		relationExists: 'La acción ya existe para este hallazgo',
-		notFound: 'La relación entre hallazgo y acción no existe',
+		relationExists: 'error.relation.exists',
+		notFound: 'error.notFound',
 	},
 	result: {
-		createFailed: 'No se pudo registrar la relación entre hallazgo y acción',
-		updateFailed: 'No se pudo actualizar la relación entre hallazgo y acción',
-		deleteFailed: 'No se pudo eliminar la relación entre hallazgo y acción',
+		createFailed: 'error.created.failed',
+		updateFailed: 'error.update.failed',
+		deleteFailed: 'error.delete.failed',
 	},
 };

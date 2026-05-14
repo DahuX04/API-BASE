@@ -1,11 +1,11 @@
 export const coursesValidationStrings = {
 	error: {
-		nameExists: 'El curso ya existe',
-		notFound: 'El curso no existe',
+		nameExists: 'error.name.exists',
+		notFound: 'error.notFound',
 	},
 	result: {
-		createFailed: 'No se pudo registrar el curso',
-		updateFailed: 'No se pudo actualizar el curso',
-		deleteFailed: 'No se pudo eliminar el curso',
+		createFailed: 'error.created.failed',
+		updateFailed: 'error.update.failed',
+		deleteFailed: 'error.delete.failed',
 	},
 };
